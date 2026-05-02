@@ -1,0 +1,104 @@
+{
+  "examples": [
+    {
+      "id": "myocardial_infarction",
+      "condition": "myocardial infarction",
+      "question_pattern": "What causes myocardial infarction?",
+      "keywords": [
+        "myocardial infarction",
+        "heart attack",
+        "coronary blockage",
+        "reduced blood flow",
+        "atherosclerosis"
+      ],
+      "answer": "Myocardial infarction can be caused by atherosclerosis that leads to coronary artery blockage and reduced blood flow to heart tissue.",
+      "explanation": "In this rule-based example, atherosclerosis contributes to plaque build-up in the coronary arteries. This can narrow or block the artery, reduce blood flow, and deprive heart muscle of oxygen, which may lead to myocardial infarction.",
+      "reasoning_path": [
+        "Atherosclerosis",
+        "Coronary artery blockage",
+        "Reduced blood flow",
+        "Myocardial infarction"
+      ]
+    },
+    {
+      "id": "hypertension",
+      "condition": "hypertension",
+      "question_pattern": "What causes hypertension?",
+      "keywords": [
+        "hypertension",
+        "high blood pressure",
+        "elevated arterial pressure",
+        "vascular resistance",
+        "fluid retention"
+      ],
+      "answer": "Hypertension can result from increased vascular resistance and fluid retention, which raise pressure inside the arteries.",
+      "explanation": "In this simplified cardiology example, narrowing or stiffness of blood vessels increases vascular resistance. Fluid retention can also increase blood volume. Together, these changes raise arterial pressure and contribute to hypertension.",
+      "reasoning_path": [
+        "Vascular stiffness",
+        "Increased vascular resistance",
+        "Elevated arterial pressure",
+        "Hypertension"
+      ]
+    },
+    {
+      "id": "heart_failure",
+      "condition": "heart failure",
+      "question_pattern": "What causes heart failure?",
+      "keywords": [
+        "heart failure",
+        "weak heart",
+        "reduced contractility",
+        "decreased cardiac output",
+        "myocardial damage"
+      ],
+      "answer": "Heart failure can occur when damaged or weakened heart muscle reduces the heart's ability to pump blood effectively.",
+      "explanation": "In this simplified example, myocardial damage weakens cardiac contraction. Reduced contractility lowers cardiac output, which can lead to symptoms and clinical findings associated with heart failure.",
+      "reasoning_path": [
+        "Myocardial damage",
+        "Reduced contractility",
+        "Decreased cardiac output",
+        "Heart failure"
+      ]
+    },
+    {
+      "id": "angina",
+      "condition": "angina",
+      "question_pattern": "What causes angina?",
+      "keywords": [
+        "angina",
+        "chest pain",
+        "coronary artery narrowing",
+        "reduced oxygen supply",
+        "myocardial oxygen"
+      ],
+      "answer": "Angina is commonly caused by reduced oxygen supply to heart muscle, often due to narrowed coronary arteries.",
+      "explanation": "In this rule-based example, coronary artery narrowing limits blood flow during increased demand. The resulting oxygen mismatch in the heart muscle can produce chest pain known as angina.",
+      "reasoning_path": [
+        "Coronary artery narrowing",
+        "Reduced myocardial oxygen supply",
+        "Chest pain",
+        "Angina"
+      ]
+    },
+    {
+      "id": "arrhythmia",
+      "condition": "arrhythmia",
+      "question_pattern": "What causes arrhythmia?",
+      "keywords": [
+        "arrhythmia",
+        "irregular heartbeat",
+        "abnormal electrical signaling",
+        "disrupted conduction",
+        "heart rhythm"
+      ],
+      "answer": "Arrhythmia can be caused by abnormal electrical signaling that disrupts the heart's normal rhythm.",
+      "explanation": "In this simplified example, changes in electrical conduction alter the timing of cardiac activation. This disrupts coordinated heartbeats and can produce an arrhythmia.",
+      "reasoning_path": [
+        "Abnormal electrical focus",
+        "Disrupted conduction",
+        "Irregular heartbeat",
+        "Arrhythmia"
+      ]
+    }
+  ]
+}

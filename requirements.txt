@@ -1,0 +1,6 @@
+# The initial prototype uses only the Python standard library.
+#
+# Add research and graph dependencies here as the project grows, for example:
+# networkx
+# pandas
+# pydantic
