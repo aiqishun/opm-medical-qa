@@ -1,98 +1,92 @@
-"""Small OPM-style graph model used by the first QA demo.
+"""Simple OPM-style graph formatting utilities.
 
-Object-Process Methodology (OPM) represents systems with objects, processes,
-and links between them. This prototype keeps the representation intentionally
-simple: each node has a label and type, and directed edges describe causal or
-state-changing relationships.
+Object-Process Methodology (OPM) describes systems using objects, processes,
+states, and links between them. This prototype keeps the representation small
+and readable so the QA output can show why an answer was selected.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Iterable, List
+from typing import Iterable, List
 
 
 @dataclass(frozen=True)
-class OPMNode:
-    """A medical object or process in the OPM graph."""
-
-    label: str
-    node_type: str
-
-
-@dataclass(frozen=True)
-class OPMEdge:
-    """A directed relationship between two OPM nodes."""
+class OPMLink:
+    """A simple relationship between two OPM elements."""
 
     source: str
-    target: str
     relationship: str
+    target: str
+
+    @classmethod
+    def from_dict(cls, data: dict[str, str]) -> "OPMLink":
+        """Create a link from JSON knowledge-base data."""
+
+        return cls(
+            source=data["source"],
+            relationship=data["relationship"],
+            target=data["target"],
+        )
+
+    def format(self) -> str:
+        """Return a readable one-line link."""
+
+        return f"{self.source} --[{self.relationship}]--> {self.target}"
 
 
 class OPMGraph:
-    """A beginner-friendly directed graph for OPM medical knowledge."""
+    """A beginner-friendly OPM-style graph container."""
 
-    def __init__(self) -> None:
-        self._nodes: Dict[str, OPMNode] = {}
-        self._edges: List[OPMEdge] = []
+    def __init__(
+        self,
+        objects: Iterable[str] | None = None,
+        processes: Iterable[str] | None = None,
+        states: Iterable[str] | None = None,
+        links: Iterable[OPMLink] | None = None,
+    ) -> None:
+        self.objects = list(objects or [])
+        self.processes = list(processes or [])
+        self.states = list(states or [])
+        self.links = list(links or [])
 
-    def add_node(self, label: str, node_type: str) -> None:
-        """Add an object or process node to the graph."""
+    @classmethod
+    def from_topic_parts(
+        cls,
+        objects: Iterable[str],
+        processes: Iterable[str],
+        states: Iterable[str],
+        links: Iterable[dict[str, str]],
+    ) -> "OPMGraph":
+        """Build a graph from the JSON fields stored for one topic."""
 
-        self._nodes[label] = OPMNode(label=label, node_type=node_type)
-
-    def add_edge(self, source: str, target: str, relationship: str) -> None:
-        """Add a directed relationship between two existing nodes."""
-
-        if source not in self._nodes:
-            raise ValueError(f"Unknown source node: {source}")
-        if target not in self._nodes:
-            raise ValueError(f"Unknown target node: {target}")
-
-        self._edges.append(
-            OPMEdge(source=source, target=target, relationship=relationship)
+        return cls(
+            objects=objects,
+            processes=processes,
+            states=states,
+            links=[OPMLink.from_dict(link) for link in links],
         )
 
-    @property
-    def nodes(self) -> Iterable[OPMNode]:
-        """Return all nodes in insertion order."""
+    def format_as_text(self) -> str:
+        """Format objects, processes, states, and links as readable text."""
 
-        return self._nodes.values()
+        sections = [
+            ("OPM objects", self.objects),
+            ("OPM processes", self.processes),
+            ("OPM states", self.states),
+            ("OPM links", [link.format() for link in self.links]),
+        ]
 
-    @property
-    def edges(self) -> Iterable[OPMEdge]:
-        """Return all directed edges in insertion order."""
+        lines: List[str] = []
+        for title, items in sections:
+            lines.append(f"{title}:")
+            if items:
+                lines.extend(f"- {item}" for item in items)
+            else:
+                lines.append("- (none)")
+            lines.append("")
 
-        return self._edges
+        return "\n".join(lines).rstrip()
 
-    def path_as_text(self, path: List[str]) -> str:
+    def path_as_text(self, path: Iterable[str]) -> str:
         """Format a reasoning path for display."""
 
         return " -> ".join(path)
-
-
-def build_mock_cardiology_graph() -> OPMGraph:
-    """Build the hard-coded cardiology graph used by the first demo."""
-
-    graph = OPMGraph()
-
-    graph.add_node("Atherosclerosis", "object")
-    graph.add_node("Coronary artery blockage", "object")
-    graph.add_node("Reduced blood flow", "process")
-    graph.add_node("Myocardial infarction", "object")
-
-    graph.add_edge(
-        "Atherosclerosis",
-        "Coronary artery blockage",
-        "can lead to",
-    )
-    graph.add_edge(
-        "Coronary artery blockage",
-        "Reduced blood flow",
-        "causes",
-    )
-    graph.add_edge(
-        "Reduced blood flow",
-        "Myocardial infarction",
-        "can result in",
-    )
-
-    return graph

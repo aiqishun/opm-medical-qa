@@ -1,15 +1,19 @@
 {
-  "examples": [
+  "topics": [
     {
       "id": "myocardial_infarction",
-      "condition": "myocardial infarction",
-      "question_pattern": "What causes myocardial infarction?",
+      "name": "myocardial infarction",
+      "question_patterns": [
+        "What causes myocardial infarction?",
+        "What causes a heart attack?",
+        "Why does myocardial infarction happen?"
+      ],
       "keywords": [
         "myocardial infarction",
         "heart attack",
         "coronary blockage",
-        "reduced blood flow",
-        "atherosclerosis"
+        "blocked artery",
+        "reduced blood flow"
       ],
       "answer": "Myocardial infarction can be caused by atherosclerosis that leads to coronary artery blockage and reduced blood flow to heart tissue.",
       "explanation": "In this rule-based example, atherosclerosis contributes to plaque build-up in the coronary arteries. This can narrow or block the artery, reduce blood flow, and deprive heart muscle of oxygen, which may lead to myocardial infarction.",
@@ -18,16 +22,57 @@
         "Coronary artery blockage",
         "Reduced blood flow",
         "Myocardial infarction"
+      ],
+      "opm_objects": [
+        "Coronary artery",
+        "Atherosclerotic plaque",
+        "Heart muscle"
+      ],
+      "opm_processes": [
+        "Plaque build-up",
+        "Artery blockage",
+        "Blood flow reduction"
+      ],
+      "opm_states": [
+        "Narrowed artery",
+        "Low oxygen supply",
+        "Injured myocardium"
+      ],
+      "opm_links": [
+        {
+          "source": "Coronary artery",
+          "relationship": "object participates in process",
+          "target": "Plaque build-up"
+        },
+        {
+          "source": "Plaque build-up",
+          "relationship": "process changes state",
+          "target": "Narrowed artery"
+        },
+        {
+          "source": "Artery blockage",
+          "relationship": "process changes state",
+          "target": "Low oxygen supply"
+        },
+        {
+          "source": "Blood flow reduction",
+          "relationship": "process leads to disease outcome",
+          "target": "Myocardial infarction"
+        }
       ]
     },
     {
       "id": "hypertension",
-      "condition": "hypertension",
-      "question_pattern": "What causes hypertension?",
+      "name": "hypertension",
+      "question_patterns": [
+        "What causes hypertension?",
+        "Why does high blood pressure happen?",
+        "What leads to elevated blood pressure?"
+      ],
       "keywords": [
         "hypertension",
         "high blood pressure",
-        "elevated arterial pressure",
+        "elevated blood pressure",
         "vascular resistance",
         "fluid retention"
       ],
@@ -38,12 +83,53 @@
         "Increased vascular resistance",
         "Elevated arterial pressure",
         "Hypertension"
+      ],
+      "opm_objects": [
+        "Artery",
+        "Blood volume",
+        "Vascular wall"
+      ],
+      "opm_processes": [
+        "Vascular constriction",
+        "Fluid retention",
+        "Pressure elevation"
+      ],
+      "opm_states": [
+        "Stiffened vessel",
+        "Increased resistance",
+        "Elevated arterial pressure"
+      ],
+      "opm_links": [
+        {
+          "source": "Vascular wall",
+          "relationship": "object participates in process",
+          "target": "Vascular constriction"
+        },
+        {
+          "source": "Vascular constriction",
+          "relationship": "process changes state",
+          "target": "Increased resistance"
+        },
+        {
+          "source": "Fluid retention",
+          "relationship": "process changes state",
+          "target": "Elevated arterial pressure"
+        },
+        {
+          "source": "Pressure elevation",
+          "relationship": "process leads to disease outcome",
+          "target": "Hypertension"
+        }
       ]
     },
     {
       "id": "heart_failure",
-      "condition": "heart failure",
-      "question_pattern": "What causes heart failure?",
+      "name": "heart failure",
+      "question_patterns": [
+        "What causes heart failure?",
+        "Why does the heart fail to pump well?",
+        "What leads to reduced cardiac output?"
+      ],
       "keywords": [
         "heart failure",
         "weak heart",
@@ -58,12 +144,53 @@
         "Reduced contractility",
         "Decreased cardiac output",
         "Heart failure"
+      ],
+      "opm_objects": [
+        "Myocardium",
+        "Ventricle",
+        "Circulating blood"
+      ],
+      "opm_processes": [
+        "Muscle weakening",
+        "Pump function reduction",
+        "Blood output reduction"
+      ],
+      "opm_states": [
+        "Weak contraction",
+        "Low cardiac output",
+        "Congestion risk"
+      ],
+      "opm_links": [
+        {
+          "source": "Myocardium",
+          "relationship": "object participates in process",
+          "target": "Muscle weakening"
+        },
+        {
+          "source": "Muscle weakening",
+          "relationship": "process changes state",
+          "target": "Weak contraction"
+        },
+        {
+          "source": "Pump function reduction",
+          "relationship": "process changes state",
+          "target": "Low cardiac output"
+        },
+        {
+          "source": "Blood output reduction",
+          "relationship": "process leads to disease outcome",
+          "target": "Heart failure"
+        }
       ]
     },
     {
       "id": "angina",
-      "condition": "angina",
-      "question_pattern": "What causes angina?",
+      "name": "angina",
+      "question_patterns": [
+        "What causes angina?",
+        "Why does angina cause chest pain?",
+        "What causes cardiac chest pain?"
+      ],
       "keywords": [
         "angina",
         "chest pain",
@@ -78,12 +205,53 @@
         "Reduced myocardial oxygen supply",
         "Chest pain",
         "Angina"
+      ],
+      "opm_objects": [
+        "Coronary artery",
+        "Heart muscle",
+        "Oxygen"
+      ],
+      "opm_processes": [
+        "Artery narrowing",
+        "Oxygen delivery reduction",
+        "Pain signal generation"
+      ],
+      "opm_states": [
+        "Oxygen mismatch",
+        "Ischemic myocardium",
+        "Chest discomfort"
+      ],
+      "opm_links": [
+        {
+          "source": "Coronary artery",
+          "relationship": "object participates in process",
+          "target": "Artery narrowing"
+        },
+        {
+          "source": "Artery narrowing",
+          "relationship": "process changes state",
+          "target": "Oxygen mismatch"
+        },
+        {
+          "source": "Oxygen delivery reduction",
+          "relationship": "process changes state",
+          "target": "Ischemic myocardium"
+        },
+        {
+          "source": "Pain signal generation",
+          "relationship": "process leads to disease outcome",
+          "target": "Angina"
+        }
       ]
     },
     {
       "id": "arrhythmia",
-      "condition": "arrhythmia",
-      "question_pattern": "What causes arrhythmia?",
+      "name": "arrhythmia",
+      "question_patterns": [
+        "What causes arrhythmia?",
+        "Why does an irregular heartbeat happen?",
+        "What disrupts heart rhythm?"
+      ],
       "keywords": [
         "arrhythmia",
         "irregular heartbeat",
@@ -98,6 +266,348 @@
         "Disrupted conduction",
         "Irregular heartbeat",
         "Arrhythmia"
+      ],
+      "opm_objects": [
+        "Electrical conduction system",
+        "SA node",
+        "Heart chambers"
+      ],
+      "opm_processes": [
+        "Signal generation",
+        "Conduction disruption",
+        "Rhythm disturbance"
+      ],
+      "opm_states": [
+        "Abnormal impulse",
+        "Irregular rhythm",
+        "Uncoordinated contraction"
+      ],
+      "opm_links": [
+        {
+          "source": "SA node",
+          "relationship": "object participates in process",
+          "target": "Signal generation"
+        },
+        {
+          "source": "Signal generation",
+          "relationship": "process changes state",
+          "target": "Abnormal impulse"
+        },
+        {
+          "source": "Conduction disruption",
+          "relationship": "process changes state",
+          "target": "Irregular rhythm"
+        },
+        {
+          "source": "Rhythm disturbance",
+          "relationship": "process leads to disease outcome",
+          "target": "Arrhythmia"
+        }
+      ]
+    },
+    {
+      "id": "atherosclerosis",
+      "name": "atherosclerosis",
+      "question_patterns": [
+        "What causes atherosclerosis?",
+        "Why does plaque build up in arteries?",
+        "What leads to hardening of the arteries?"
+      ],
+      "keywords": [
+        "atherosclerosis",
+        "plaque build up",
+        "plaque buildup",
+        "hardening arteries",
+        "cholesterol plaque"
+      ],
+      "answer": "Atherosclerosis develops when lipids, inflammatory cells, and fibrous tissue accumulate in artery walls and form plaques.",
+      "explanation": "In this simplified model, endothelial injury and lipid deposition start plaque formation. Inflammation and fibrous tissue growth enlarge the plaque, which can stiffen and narrow the artery.",
+      "reasoning_path": [
+        "Endothelial injury",
+        "Lipid deposition",
+        "Plaque formation",
+        "Atherosclerosis"
+      ],
+      "opm_objects": [
+        "Artery wall",
+        "LDL cholesterol",
+        "Inflammatory cells"
+      ],
+      "opm_processes": [
+        "Endothelial injury",
+        "Lipid accumulation",
+        "Plaque formation"
+      ],
+      "opm_states": [
+        "Inflamed vessel wall",
+        "Plaque-containing artery",
+        "Narrowed artery"
+      ],
+      "opm_links": [
+        {
+          "source": "Artery wall",
+          "relationship": "object participates in process",
+          "target": "Endothelial injury"
+        },
+        {
+          "source": "LDL cholesterol",
+          "relationship": "object participates in process",
+          "target": "Lipid accumulation"
+        },
+        {
+          "source": "Lipid accumulation",
+          "relationship": "process changes state",
+          "target": "Plaque-containing artery"
+        },
+        {
+          "source": "Plaque formation",
+          "relationship": "process leads to disease outcome",
+          "target": "Atherosclerosis"
+        }
+      ]
+    },
+    {
+      "id": "coronary_artery_disease",
+      "name": "coronary artery disease",
+      "question_patterns": [
+        "What causes coronary artery disease?",
+        "Why do coronary arteries become narrowed?",
+        "What leads to coronary artery disease?"
+      ],
+      "keywords": [
+        "coronary artery disease",
+        "cad",
+        "coronary narrowing",
+        "coronary plaque",
+        "reduced coronary blood flow"
+      ],
+      "answer": "Coronary artery disease is usually caused by atherosclerotic plaque that narrows coronary arteries and limits blood flow to the heart.",
+      "explanation": "In this rule-based example, plaque forms in the coronary arteries. As plaque grows, the vessel lumen narrows and coronary blood flow becomes limited, which can cause ischemia and related symptoms.",
+      "reasoning_path": [
+        "Atherosclerotic plaque",
+        "Coronary artery narrowing",
+        "Reduced coronary blood flow",
+        "Coronary artery disease"
+      ],
+      "opm_objects": [
+        "Coronary artery",
+        "Atherosclerotic plaque",
+        "Heart muscle"
+      ],
+      "opm_processes": [
+        "Plaque growth",
+        "Artery narrowing",
+        "Blood flow limitation"
+      ],
+      "opm_states": [
+        "Narrowed coronary artery",
+        "Reduced perfusion",
+        "Myocardial ischemia risk"
+      ],
+      "opm_links": [
+        {
+          "source": "Atherosclerotic plaque",
+          "relationship": "object participates in process",
+          "target": "Plaque growth"
+        },
+        {
+          "source": "Plaque growth",
+          "relationship": "process changes state",
+          "target": "Narrowed coronary artery"
+        },
+        {
+          "source": "Blood flow limitation",
+          "relationship": "process changes state",
+          "target": "Reduced perfusion"
+        },
+        {
+          "source": "Artery narrowing",
+          "relationship": "process leads to disease outcome",
+          "target": "Coronary artery disease"
+        }
+      ]
+    },
+    {
+      "id": "cardiac_arrest",
+      "name": "cardiac arrest",
+      "question_patterns": [
+        "What causes cardiac arrest?",
+        "Why does the heart suddenly stop?",
+        "What leads to sudden cardiac arrest?"
+      ],
+      "keywords": [
+        "cardiac arrest",
+        "sudden cardiac arrest",
+        "heart stops",
+        "ventricular fibrillation",
+        "no effective pulse"
+      ],
+      "answer": "Cardiac arrest can occur when a severe electrical disturbance prevents the heart from pumping blood effectively.",
+      "explanation": "In this simplified example, a dangerous rhythm such as ventricular fibrillation disrupts coordinated contraction. Without effective pumping, circulation stops and cardiac arrest occurs.",
+      "reasoning_path": [
+        "Severe electrical disturbance",
+        "Uncoordinated ventricular contraction",
+        "Loss of effective pumping",
+        "Cardiac arrest"
+      ],
+      "opm_objects": [
+        "Electrical conduction system",
+        "Ventricles",
+        "Circulation"
+      ],
+      "opm_processes": [
+        "Rhythm destabilization",
+        "Pump failure",
+        "Circulation collapse"
+      ],
+      "opm_states": [
+        "Chaotic rhythm",
+        "Absent effective pulse",
+        "No circulation"
+      ],
+      "opm_links": [
+        {
+          "source": "Electrical conduction system",
+          "relationship": "object participates in process",
+          "target": "Rhythm destabilization"
+        },
+        {
+          "source": "Rhythm destabilization",
+          "relationship": "process changes state",
+          "target": "Chaotic rhythm"
+        },
+        {
+          "source": "Pump failure",
+          "relationship": "process changes state",
+          "target": "Absent effective pulse"
+        },
+        {
+          "source": "Circulation collapse",
+          "relationship": "process leads to disease outcome",
+          "target": "Cardiac arrest"
+        }
+      ]
+    },
+    {
+      "id": "valvular_heart_disease",
+      "name": "valvular heart disease",
+      "question_patterns": [
+        "What causes valvular heart disease?",
+        "Why do heart valves fail?",
+        "What causes valve stenosis or regurgitation?"
+      ],
+      "keywords": [
+        "valvular heart disease",
+        "heart valve disease",
+        "valve stenosis",
+        "valve regurgitation",
+        "damaged valve"
+      ],
+      "answer": "Valvular heart disease can occur when heart valves become narrowed, leaky, or damaged, disrupting normal blood flow through the heart.",
+      "explanation": "In this simplified model, valve damage or degeneration changes valve structure. A narrowed valve obstructs forward flow, while a leaky valve allows backward flow. Either process can increase cardiac workload.",
+      "reasoning_path": [
+        "Valve damage",
+        "Abnormal valve opening or closure",
+        "Disrupted blood flow",
+        "Valvular heart disease"
+      ],
+      "opm_objects": [
+        "Heart valve",
+        "Valve leaflets",
+        "Blood flow"
+      ],
+      "opm_processes": [
+        "Valve degeneration",
+        "Flow obstruction",
+        "Backward leakage"
+      ],
+      "opm_states": [
+        "Stenotic valve",
+        "Regurgitant valve",
+        "Increased cardiac workload"
+      ],
+      "opm_links": [
+        {
+          "source": "Heart valve",
+          "relationship": "object participates in process",
+          "target": "Valve degeneration"
+        },
+        {
+          "source": "Flow obstruction",
+          "relationship": "process changes state",
+          "target": "Stenotic valve"
+        },
+        {
+          "source": "Backward leakage",
+          "relationship": "process changes state",
+          "target": "Regurgitant valve"
+        },
+        {
+          "source": "Valve degeneration",
+          "relationship": "process leads to disease outcome",
+          "target": "Valvular heart disease"
+        }
+      ]
+    },
+    {
+      "id": "cardiomyopathy",
+      "name": "cardiomyopathy",
+      "question_patterns": [
+        "What causes cardiomyopathy?",
+        "Why does the heart muscle become abnormal?",
+        "What leads to enlarged or thickened heart muscle?"
+      ],
+      "keywords": [
+        "cardiomyopathy",
+        "abnormal heart muscle",
+        "enlarged heart muscle",
+        "thickened heart muscle",
+        "weakened myocardium"
+      ],
+      "answer": "Cardiomyopathy can result from structural or functional abnormalities of the heart muscle that reduce effective pumping.",
+      "explanation": "In this simplified example, genetic factors, chronic pressure overload, ischemia, or toxins can alter the myocardium. The heart muscle may become enlarged, thickened, or weakened, which can impair pumping function.",
+      "reasoning_path": [
+        "Myocardial stress or injury",
+        "Abnormal heart muscle remodeling",
+        "Reduced pump efficiency",
+        "Cardiomyopathy"
+      ],
+      "opm_objects": [
+        "Myocardium",
+        "Ventricle",
+        "Cardiac muscle cells"
+      ],
+      "opm_processes": [
+        "Muscle remodeling",
+        "Chamber dilation or thickening",
+        "Pump efficiency reduction"
+      ],
+      "opm_states": [
+        "Enlarged myocardium",
+        "Thickened myocardium",
+        "Weakened contraction"
+      ],
+      "opm_links": [
+        {
+          "source": "Myocardium",
+          "relationship": "object participates in process",
+          "target": "Muscle remodeling"
+        },
+        {
+          "source": "Muscle remodeling",
+          "relationship": "process changes state",
+          "target": "Enlarged myocardium"
+        },
+        {
+          "source": "Chamber dilation or thickening",
+          "relationship": "process changes state",
+          "target": "Thickened myocardium"
+        },
+        {
+          "source": "Pump efficiency reduction",
+          "relationship": "process leads to disease outcome",
+          "target": "Cardiomyopathy"
+        }
       ]
     }
   ]

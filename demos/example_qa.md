@@ -1,5 +1,11 @@
 # Example QA Demo
 
+This demo shows how the rule-based cardiology QA prototype returns an answer,
+an explanation, a reasoning path, and OPM-style structured output from the JSON
+knowledge base.
+
+## Full Example: Myocardial Infarction
+
 Run:
 
 ```bash
@@ -17,8 +23,28 @@ In this rule-based example, atherosclerosis contributes to plaque build-up in th
 
 reasoning path:
 Atherosclerosis -> Coronary artery blockage -> Reduced blood flow -> Myocardial infarction
+
+OPM objects:
+- Coronary artery
+- Atherosclerotic plaque
+- Heart muscle
+
+OPM processes:
+- Plaque build-up
+- Artery blockage
+- Blood flow reduction
+
+OPM states:
+- Narrowed artery
+- Low oxygen supply
+- Injured myocardium
+
+OPM links:
+- Coronary artery --[object participates in process]--> Plaque build-up
+- Plaque build-up --[process changes state]--> Narrowed artery
+- Artery blockage --[process changes state]--> Low oxygen supply
+- Blood flow reduction --[process leads to disease outcome]--> Myocardial infarction
 ```
 
-This demo is intentionally simple. It shows the shape of the future system:
-an answer supported by an explainable path from a small cardiology knowledge
-base.
+The OPM fields are intentionally compact. They provide a beginner-friendly view
+of the objects, processes, states, and relationships used to explain the answer.

@@ -14,8 +14,9 @@ SRC_DIR = PROJECT_ROOT / "src"
 DEFAULT_KNOWLEDGE_BASE = PROJECT_ROOT / "data" / "processed" / "cardiology_knowledge.json"
 sys.path.insert(0, str(SRC_DIR))
 
+from graph.opm_graph import OPMGraph  # noqa: E402
 from reasoning.mock_reasoner import (  # noqa: E402
-    CardiologyExample,
+    CardiologyTopic,
     RuleBasedCardiologyReasoner,
 )
 
@@ -40,14 +41,14 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_knowledge_base(path: Path) -> List[CardiologyExample]:
-    """Load cardiology QA examples from a JSON file."""
+def load_knowledge_base(path: Path) -> List[CardiologyTopic]:
+    """Load cardiology QA topics from a JSON file."""
 
     with path.open("r", encoding="utf-8") as file:
         data: Dict[str, Any] = json.load(file)
 
-    examples = data.get("examples", [])
-    return [CardiologyExample.from_dict(example) for example in examples]
+    topics = data.get("topics", [])
+    return [CardiologyTopic.from_dict(topic) for topic in topics]
 
 
 def main() -> None:
@@ -55,8 +56,8 @@ def main() -> None:
 
     args = parse_args()
 
-    examples = load_knowledge_base(args.knowledge_base)
-    reasoner = RuleBasedCardiologyReasoner(examples=examples)
+    topics = load_knowledge_base(args.knowledge_base)
+    reasoner = RuleBasedCardiologyReasoner(topics=topics)
     result = reasoner.answer(args.question)
 
     print("answer:")
@@ -72,6 +73,15 @@ def main() -> None:
         print(" -> ".join(result.reasoning_path))
     else:
         print("(no reasoning path found)")
+    print()
+
+    opm_graph = OPMGraph.from_topic_parts(
+        objects=result.opm_objects,
+        processes=result.opm_processes,
+        states=result.opm_states,
+        links=result.opm_links,
+    )
+    print(opm_graph.format_as_text())
 
 
 if __name__ == "__main__":

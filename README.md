@@ -19,11 +19,12 @@ only return an answer, but also explain how that answer was derived.
 
 The prototype represents cardiology knowledge as OPM-inspired reasoning paths
 over objects, processes, and causal relationships. A rule-based matcher searches
-this structured representation and returns three outputs:
+this structured representation and returns:
 
 - an answer to the question
 - a short explanation in natural language
 - a reasoning path through the graph
+- OPM objects, processes, states, and links
 
 The first demonstration answers:
 
@@ -61,7 +62,7 @@ that combines:
 - evaluation of answer correctness and explanation quality
 
 The initial goal of this repository is narrower: establish a clean, runnable
-prototype that demonstrates the expected answer-explanation-path interface.
+prototype that demonstrates the expected answer-explanation-OPM interface.
 
 ## Pipeline
 
@@ -72,7 +73,7 @@ Medical sources
     -> extraction
     -> OPM graph construction
     -> reasoning
-    -> answer + explanation + reasoning path
+    -> answer + explanation + reasoning path + OPM structure
     -> evaluation
 ```
 
@@ -143,13 +144,35 @@ In this rule-based example, atherosclerosis contributes to plaque build-up in th
 
 reasoning path:
 Atherosclerosis -> Coronary artery blockage -> Reduced blood flow -> Myocardial infarction
+
+OPM objects:
+- Coronary artery
+- Atherosclerotic plaque
+- Heart muscle
+
+OPM processes:
+- Plaque build-up
+- Artery blockage
+- Blood flow reduction
+
+OPM states:
+- Narrowed artery
+- Low oxygen supply
+- Injured myocardium
+
+OPM links:
+- Coronary artery --[object participates in process]--> Plaque build-up
+- Plaque build-up --[process changes state]--> Narrowed artery
+- Artery blockage --[process changes state]--> Low oxygen supply
+- Blood flow reduction --[process leads to disease outcome]--> Myocardial infarction
 ```
 
 Additional demo notes are available in
 [`demos/example_qa.md`](demos/example_qa.md).
 
-The current knowledge base includes examples for myocardial infarction,
-hypertension, heart failure, angina, and arrhythmia.
+The current knowledge base includes topics for myocardial infarction,
+hypertension, heart failure, angina, arrhythmia, atherosclerosis, coronary
+artery disease, cardiac arrest, valvular heart disease, and cardiomyopathy.
 
 ## Future Work
 
