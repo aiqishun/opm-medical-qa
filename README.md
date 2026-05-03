@@ -59,6 +59,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | Matching | `src/reasoning/matcher.py` | Score a question against topic keywords and patterns |
 | Reasoning | `src/reasoning/reasoner.py` | Select the best topic or return a fallback response |
 | OPM formatting | `src/graph/opm_graph.py` | Represent and format objects, processes, states, and links |
+| OPM JSON export | `src/graph/exporter.py` | Atomically write an `OPMGraph` to a JSON file |
 | Output formatting | `src/formatting.py` | Render answer, explanation, reasoning path, and OPM sections |
 | Tests | `tests/` | Unit and CLI behavior checks |
 
@@ -122,6 +123,54 @@ OPM links:
 
 More demo notes are in [`demos/example_qa.md`](demos/example_qa.md).
 
+## Graph Export
+
+The OPM-style graph for any answered question can be saved as JSON for further
+analysis (notebook inspection, comparison runs, downstream tooling). Pass
+`--export-graph` to point at a destination file:
+
+```bash
+python scripts/run_qa.py \
+    --question "What causes myocardial infarction?" \
+    --export-graph outputs/graphs/myocardial_infarction.json
+```
+
+The CLI still prints the answer, explanation, reasoning path, and OPM sections
+exactly as before, then appends a confirmation line:
+
+```text
+Graph exported to: outputs/graphs/myocardial_infarction.json
+```
+
+The exported JSON has the following shape (fields mirror the knowledge base so
+the file can be re-loaded into an `OPMGraph`):
+
+```json
+{
+  "objects": ["Coronary artery", "Atherosclerotic plaque", "Heart muscle"],
+  "processes": ["Plaque build-up", "Artery blockage", "Blood flow reduction"],
+  "states": ["Narrowed artery", "Low oxygen supply", "Injured myocardium"],
+  "links": [
+    {
+      "source": "Coronary artery",
+      "relationship": "object participates in process",
+      "target": "Plaque build-up"
+    }
+  ]
+}
+```
+
+Parent directories are created automatically and writes are atomic (the file
+is staged via a sibling temporary file and renamed into place). Generated graph
+files under `outputs/graphs/` are git-ignored.
+
+> Exported graphs are **OPM-style research artifacts** produced by this
+> prototype's rule-based reasoner over a small, hand-built knowledge base. They
+> are not curated clinical knowledge graphs, are not validated against medical
+> literature, and must not be used for clinical decision-making. The export
+> format is also not a standard-compliant OPM serialization — it is a compact
+> JSON shape chosen for prototype use.
+
 ## Knowledge Base
 
 The current hand-built cardiology knowledge base is:
@@ -179,13 +228,13 @@ python -m unittest discover -t . -s tests
 Current local status:
 
 ```text
-Ran 55 tests
+Ran 69 tests
 OK
 ```
 
 The tests cover JSON/JSONL helpers, topic loading, keyword matching, reasoning
-fallbacks, OPM formatting, CLI output, and the placeholder MedQA preprocessing
-script.
+fallbacks, OPM formatting, OPM JSON export (including the `--export-graph` CLI
+flag), CLI output, and the placeholder MedQA preprocessing script.
 
 ## Roadmap
 

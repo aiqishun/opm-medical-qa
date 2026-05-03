@@ -79,6 +79,69 @@ class MainTests(unittest.TestCase):
         self.assertEqual(exit_code, 1)
         self.assertIn("Invalid JSON", err.getvalue())
 
+    def test_main_exports_graph_when_requested(self) -> None:
+        with TemporaryDirectory() as tmp:
+            export_path = Path(tmp) / "nested" / "graph.json"
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = run_qa.main(
+                    [
+                        "--question",
+                        "What causes myocardial infarction?",
+                        "--knowledge-base",
+                        str(DEFAULT_KB),
+                        "--export-graph",
+                        str(export_path),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn(f"Graph exported to: {export_path}", buffer.getvalue())
+            self.assertTrue(export_path.exists())
+
+            payload = json.loads(export_path.read_text(encoding="utf-8"))
+            self.assertIn("Coronary artery", payload["objects"])
+            self.assertTrue(
+                any(link["target"] == "Plaque build-up" for link in payload["links"])
+            )
+
+    def test_main_without_export_flag_does_not_change_stdout(self) -> None:
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            exit_code = run_qa.main(
+                [
+                    "--question",
+                    "What causes myocardial infarction?",
+                    "--knowledge-base",
+                    str(DEFAULT_KB),
+                ]
+            )
+
+        self.assertEqual(exit_code, 0)
+        self.assertNotIn("Graph exported to", buffer.getvalue())
+
+    def test_main_reports_export_error(self) -> None:
+        with TemporaryDirectory() as tmp:
+            blocker = Path(tmp) / "blocker"
+            blocker.write_text("not a directory", encoding="utf-8")
+            export_path = blocker / "graph.json"
+
+            err = io.StringIO()
+            with redirect_stderr(err), redirect_stdout(io.StringIO()):
+                exit_code = run_qa.main(
+                    [
+                        "--question",
+                        "What causes myocardial infarction?",
+                        "--knowledge-base",
+                        str(DEFAULT_KB),
+                        "--export-graph",
+                        str(export_path),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 1)
+            self.assertTrue(err.getvalue().startswith("error:"))
+
 
 class ScriptInvocationTests(unittest.TestCase):
     """End-to-end test invoking the script as a subprocess."""
@@ -98,6 +161,29 @@ class ScriptInvocationTests(unittest.TestCase):
 
         self.assertIn("answer:", result.stdout)
         self.assertIn("OPM links:", result.stdout)
+
+    def test_script_export_graph_flag(self) -> None:
+        with TemporaryDirectory() as tmp:
+            export_path = Path(tmp) / "outputs" / "graphs" / "mi.json"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT_PATH),
+                    "--question",
+                    "What causes myocardial infarction?",
+                    "--export-graph",
+                    str(export_path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertIn("answer:", result.stdout)
+            self.assertIn(f"Graph exported to: {export_path}", result.stdout)
+            self.assertTrue(export_path.exists())
+            payload = json.loads(export_path.read_text(encoding="utf-8"))
+            self.assertEqual(set(payload), {"objects", "processes", "states", "links"})
 
     def test_script_uses_custom_knowledge_base(self) -> None:
         with TemporaryDirectory() as tmp:

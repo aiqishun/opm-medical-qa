@@ -66,6 +66,54 @@ class OPMGraphTests(unittest.TestCase):
         self.assertEqual(len(graph.links), 1)
         self.assertEqual(graph.links[0].relationship, "in")
 
+    def test_to_dict_returns_serializable_structure(self) -> None:
+        graph = OPMGraph(
+            objects=["Heart"],
+            processes=["Beating"],
+            states=["Healthy"],
+            links=[OPMLink("Heart", "performs", "Beating")],
+        )
+
+        payload = graph.to_dict()
+
+        self.assertEqual(
+            payload,
+            {
+                "objects": ["Heart"],
+                "processes": ["Beating"],
+                "states": ["Healthy"],
+                "links": [
+                    {"source": "Heart", "relationship": "performs", "target": "Beating"}
+                ],
+            },
+        )
+
+    def test_to_dict_for_empty_graph_has_empty_lists(self) -> None:
+        payload = OPMGraph().to_dict()
+
+        self.assertEqual(
+            payload,
+            {"objects": [], "processes": [], "states": [], "links": []},
+        )
+
+    def test_to_dict_round_trips_through_from_topic_parts(self) -> None:
+        original = OPMGraph(
+            objects=["O1", "O2"],
+            processes=["P1"],
+            states=["S1"],
+            links=[OPMLink("O1", "leads to", "P1")],
+        )
+
+        payload = original.to_dict()
+        rebuilt = OPMGraph.from_topic_parts(
+            objects=payload["objects"],
+            processes=payload["processes"],
+            states=payload["states"],
+            links=payload["links"],
+        )
+
+        self.assertEqual(rebuilt.to_dict(), payload)
+
 
 if __name__ == "__main__":
     unittest.main()

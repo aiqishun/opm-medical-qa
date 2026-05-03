@@ -22,7 +22,8 @@ if str(SRC_DIR) not in sys.path:
 
 from data_io import DataIOError  # noqa: E402
 from formatting import format_qa_result  # noqa: E402
-from reasoning import RuleBasedCardiologyReasoner, load_topics  # noqa: E402
+from graph.exporter import GraphExportError, export_graph  # noqa: E402
+from reasoning import QAResult, RuleBasedCardiologyReasoner, load_topics  # noqa: E402
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -40,16 +41,31 @@ def _build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="Path to the cardiology knowledge base JSON file.",
     )
+    parser.add_argument(
+        "--export-graph",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "Optional path to write the OPM graph as JSON. "
+            "Parent directories are created automatically."
+        ),
+    )
     return parser
 
 
-def run(question: str, knowledge_base_path: Path) -> str:
-    """Answer ``question`` using ``knowledge_base_path`` and return formatted text."""
+def answer_question(question: str, knowledge_base_path: Path) -> QAResult:
+    """Load the knowledge base and answer ``question``."""
 
     topics = load_topics(knowledge_base_path)
     reasoner = RuleBasedCardiologyReasoner(topics=topics)
-    result = reasoner.answer(question)
-    return format_qa_result(result)
+    return reasoner.answer(question)
+
+
+def run(question: str, knowledge_base_path: Path) -> str:
+    """Answer ``question`` and return the formatted text output."""
+
+    return format_qa_result(answer_question(question, knowledge_base_path))
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -58,12 +74,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
 
     try:
-        output = run(args.question, args.knowledge_base)
+        result = answer_question(args.question, args.knowledge_base)
     except DataIOError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
 
-    print(output)
+    print(format_qa_result(result))
+
+    if args.export_graph is not None:
+        try:
+            export_path = export_graph(result.graph, args.export_graph)
+        except GraphExportError as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 1
+        print(f"\nGraph exported to: {export_path}")
+
     return 0
 
 

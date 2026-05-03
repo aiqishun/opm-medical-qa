@@ -72,6 +72,27 @@ class OPMGraph:
 
         return not (self.objects or self.processes or self.states or self.links)
 
+    def to_dict(self) -> dict[str, list]:
+        """Return a JSON-serializable representation of the graph.
+
+        The shape mirrors the knowledge-base format so an exported graph can be
+        round-tripped through :meth:`from_topic_parts`.
+        """
+
+        return {
+            "objects": list(self.objects),
+            "processes": list(self.processes),
+            "states": list(self.states),
+            "links": [
+                {
+                    "source": link.source,
+                    "relationship": link.relationship,
+                    "target": link.target,
+                }
+                for link in self.links
+            ],
+        }
+
     def format_as_text(self) -> str:
         """Format objects, processes, states, and links as readable text."""
 
