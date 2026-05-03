@@ -65,6 +65,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | OPM formatting | `src/graph/opm_graph.py` | Represent and format objects, processes, states, and links |
 | OPM JSON export | `src/graph/exporter.py` | Atomically write an `OPMGraph` to a JSON file |
 | Output formatting | `src/formatting.py` | Render answer, explanation, reasoning path, and OPM sections |
+| Batch summaries | `src/evaluation/summary.py` | Render a Markdown report from a batch QA run |
 | Tests | `tests/` | Unit and CLI behavior checks |
 
 ## Quick Start
@@ -279,6 +280,40 @@ Behavior notes:
   `graph_path` are `null` and `status` is `"fallback"`.
 - The same non-clinical-use disclaimer applies to all generated artifacts.
 
+### Markdown summary report
+
+Pass `--summary` to also generate a human-readable Markdown report alongside
+the JSONL results:
+
+```bash
+python scripts/run_batch_qa.py \
+    --input data/processed/medqa_cardiology_sample.jsonl \
+    --output experiments/results/batch_qa_results.jsonl \
+    --graphs-dir outputs/graphs/batch/ \
+    --summary experiments/results/batch_summary.md
+```
+
+The example summary path is:
+
+```text
+experiments/results/batch_summary.md
+```
+
+The report is rendered by `src/evaluation/summary.py` and contains:
+
+- the input file, results JSONL, and graphs directory paths
+- counts: total input records, questions processed, skipped, matched, fallback
+- match rate (percentage of *processed* questions that matched, or `n/a` if
+  none were processed)
+- number of graph files generated
+- a matched-topic frequency table (sorted by count desc, then topic name)
+- a list of fallback questions, if any
+- a prototype-only disclaimer noting that this is a synthetic-sample run, not
+  a full MedQA evaluation, and that exported graphs are research artifacts
+
+The CLI behavior is unchanged when `--summary` is omitted; passing it just
+appends a single `Wrote summary report to: …` line to stdout.
+
 ## Tests
 
 Run the test suite from the project root:
@@ -290,15 +325,15 @@ python -m unittest discover -t . -s tests
 Current local status:
 
 ```text
-Ran 84 tests
+Ran 98 tests
 OK
 ```
 
 The tests cover JSON/JSONL helpers, topic loading, keyword matching, reasoning
 fallbacks, OPM formatting, OPM JSON export (including the `--export-graph` CLI
 flag), the batch experiment script (happy path, fallbacks, missing/blank
-questions, filename rules, and error reporting), CLI output, and the placeholder
-MedQA preprocessing script.
+questions, filename rules, error reporting, and the `--summary` Markdown
+report), CLI output, and the placeholder MedQA preprocessing script.
 
 ## Roadmap
 

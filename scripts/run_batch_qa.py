@@ -16,7 +16,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -31,6 +31,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_io import DataIOError, read_jsonl, write_jsonl  # noqa: E402
+from evaluation.summary import build_markdown_summary  # noqa: E402
 from graph.exporter import GraphExportError, export_graph  # noqa: E402
 from reasoning import RuleBasedCardiologyReasoner, load_topics  # noqa: E402
 
@@ -44,7 +45,12 @@ STATUS_FALLBACK = "fallback"
 
 @dataclass(frozen=True)
 class BatchSummary:
-    """Counts returned by :func:`run_batch` for end-of-run reporting."""
+    """Counts returned by :func:`run_batch` for end-of-run reporting.
+
+    ``results`` is the same list of dicts that was written to
+    ``output_path`` as JSONL; it is exposed so callers can build downstream
+    artifacts (such as a Markdown summary) without re-reading the file.
+    """
 
     total_records: int
     matched: int
@@ -53,6 +59,7 @@ class BatchSummary:
     input_path: Path
     output_path: Path
     graphs_dir: Path
+    results: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -85,6 +92,16 @@ def _build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_KNOWLEDGE_BASE,
         type=Path,
         help="Path to the cardiology knowledge base JSON file.",
+    )
+    parser.add_argument(
+        "--summary",
+        default=None,
+        type=Path,
+        metavar="PATH",
+        help=(
+            "Optional path to write a human-readable Markdown summary report. "
+            "Parent directories are created automatically."
+        ),
     )
     return parser
 
@@ -170,7 +187,25 @@ def run_batch(
         input_path=input_path,
         output_path=output_path,
         graphs_dir=graphs_dir,
+        results=results,
     )
+
+
+def _write_summary_report(summary: BatchSummary, path: Path) -> Path:
+    """Render a Markdown report for ``summary`` and write it to ``path``."""
+
+    markdown = build_markdown_summary(
+        input_path=summary.input_path,
+        output_path=summary.output_path,
+        graphs_dir=summary.graphs_dir,
+        total_records=summary.total_records,
+        skipped_missing_question=summary.skipped_missing_question,
+        results=summary.results,
+    )
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(markdown, encoding="utf-8")
+    return path
 
 
 def _print_summary(summary: BatchSummary) -> None:
@@ -200,6 +235,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
 
     _print_summary(summary)
+
+    if args.summary is not None:
+        try:
+            summary_path = _write_summary_report(summary, args.summary)
+        except OSError as error:
+            print(f"error: could not write summary report: {error}", file=sys.stderr)
+            return 1
+        print(f"Wrote summary report to: {summary_path}")
+
     return 0
 
 

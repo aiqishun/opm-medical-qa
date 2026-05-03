@@ -290,6 +290,73 @@ class MainTests(unittest.TestCase):
             self.assertIn("Invalid JSON", err.getvalue())
             self.assertIn("line 2", err.getvalue())
 
+    def test_main_writes_summary_when_requested(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            summary_path = tmp_path / "reports" / "summary.md"
+            _write_jsonl(
+                input_path,
+                [
+                    {"question": "What causes hypertension?"},
+                    {"question": "How do glaciers form?"},
+                ],
+            )
+
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = run_batch_qa.main(
+                    [
+                        "--input",
+                        str(input_path),
+                        "--output",
+                        str(output_path),
+                        "--graphs-dir",
+                        str(graphs_dir),
+                        "--summary",
+                        str(summary_path),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn(
+                f"Wrote summary report to: {summary_path}", buffer.getvalue()
+            )
+            self.assertTrue(summary_path.exists())
+
+            text = summary_path.read_text(encoding="utf-8")
+            self.assertIn("# OPM Medical QA — Batch Summary", text)
+            self.assertIn("| Matched | 1 |", text)
+            self.assertIn("| Fallback | 1 |", text)
+            self.assertIn("| hypertension | 1 |", text)
+            self.assertIn("- How do glaciers form?", text)
+
+    def test_main_without_summary_does_not_write_report(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            _write_jsonl(input_path, [{"question": "What causes hypertension?"}])
+
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = run_batch_qa.main(
+                    [
+                        "--input",
+                        str(input_path),
+                        "--output",
+                        str(output_path),
+                        "--graphs-dir",
+                        str(graphs_dir),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertNotIn("summary report", buffer.getvalue())
+
     def test_main_reports_missing_knowledge_base(self) -> None:
         with TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
