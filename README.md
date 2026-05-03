@@ -9,8 +9,10 @@ intentionally small: it uses a JSON cardiology knowledge base and simple
 rule-based reasoning to demonstrate the expected system behavior before adding
 real data, extraction models, or clinical evaluation.
 
-> Research prototype only. This project is not a medical device and must not be
-> used for diagnosis, treatment, or clinical decision-making.
+> Research prototype only. This project is not a medical device, has not been
+> clinically validated, and must not be used for diagnosis, treatment, or any
+> clinical decision-making. The bundled answer text is illustrative content for
+> testing the system shape, not medical advice.
 
 ## Overview
 
@@ -98,14 +100,32 @@ opm-medical-qa/
 ├── docs/                    # Research notes and design documentation
 ├── experiments/
 │   └── results/             # Experiment outputs, metrics, and logs
-├── scripts/                 # Command-line entry points
+├── scripts/                 # Command-line entry points (thin CLI shells)
+│   ├── prepare_medqa.py     # Cardiology JSONL filter
+│   └── run_qa.py            # Demo QA entry point
 ├── src/
-│   ├── evaluation/          # Future evaluation utilities
-│   ├── extraction/          # Future medical text extraction components
-│   ├── graph/               # OPM graph representation
-│   └── reasoning/           # QA and reasoning components
+│   ├── data_io.py           # JSON / JSONL helpers with friendly errors
+│   ├── formatting.py        # Human-readable QA output formatting
+│   ├── evaluation/          # Future evaluation utilities (placeholder)
+│   ├── extraction/          # Future medical text extraction (placeholder)
+│   ├── graph/
+│   │   └── opm_graph.py     # OPM objects, processes, states, links
+│   └── reasoning/
+│       ├── topic.py         # CardiologyTopic data model + loader
+│       ├── matcher.py       # Question-to-topic similarity scoring
+│       └── reasoner.py      # RuleBasedCardiologyReasoner + QAResult
 └── tests/                   # Unit and integration tests
 ```
+
+### Module responsibilities
+
+| Layer | Module | Responsibility |
+| --- | --- | --- |
+| Data loading | `src/data_io.py`, `src/reasoning/topic.py` | Read JSON/JSONL with clear errors; build `CardiologyTopic` instances |
+| Question matching | `src/reasoning/matcher.py` | Score how well a question matches a topic |
+| Reasoning | `src/reasoning/reasoner.py` | Pick the best topic and assemble a `QAResult` |
+| Output | `src/formatting.py`, `src/graph/opm_graph.py` | Render answer, explanation, reasoning path, and OPM graph |
+| Entry points | `scripts/run_qa.py`, `scripts/prepare_medqa.py` | Argument parsing, exit codes, error reporting |
 
 ## Quick Start
 
@@ -124,6 +144,44 @@ If your system uses `python3` instead of `python`, run:
 ```bash
 python3 scripts/run_qa.py --question "What causes myocardial infarction?"
 ```
+
+## MedQA Preprocessing
+
+The full MedQA dataset is not included in this repository. The current project
+only contains a tiny synthetic JSONL sample for testing the preprocessing
+pipeline:
+
+```text
+data/raw/medqa_sample.jsonl
+```
+
+To filter the sample for cardiology-related examples, run:
+
+```bash
+python scripts/prepare_medqa.py
+```
+
+The filtered output is written to:
+
+```text
+data/processed/medqa_cardiology_sample.jsonl
+```
+
+Future users who have access to the real MedQA dataset should place the JSONL
+file under `data/raw/` and pass it to the script:
+
+```bash
+python scripts/prepare_medqa.py --input data/raw/your_medqa_file.jsonl
+```
+
+The keyword vocabulary can be overridden for ad-hoc experiments:
+
+```bash
+python scripts/prepare_medqa.py --keyword angina --keyword arrhythmia
+```
+
+This repository has only ever been tested against the bundled synthetic sample.
+No claim is made about evaluation on the full MedQA dataset.
 
 ## Demo Example
 
@@ -173,6 +231,26 @@ Additional demo notes are available in
 The current knowledge base includes topics for myocardial infarction,
 hypertension, heart failure, angina, arrhythmia, atherosclerosis, coronary
 artery disease, cardiac arrest, valvular heart disease, and cardiomyopathy.
+
+## Tests
+
+The test suite uses only the standard library (`unittest`). Run it from the
+project root:
+
+```bash
+python -m unittest discover -t . -s tests
+```
+
+The suite covers:
+
+- `data_io` — JSON / JSONL reading and writing, including missing-file and
+  invalid-JSON error paths
+- `reasoning.topic` — knowledge base loading and validation
+- `reasoning.matcher` — question scoring, normalisation, and stopwords
+- `reasoning.reasoner` — topic selection, fallback, and minimum match score
+- `graph.opm_graph` — OPM section formatting and link rendering
+- `scripts/run_qa.py` — CLI behavior, error handling, and end-to-end output
+- `scripts/prepare_medqa.py` — filtering, error handling, and keyword overrides
 
 ## Future Work
 

@@ -27,9 +27,11 @@ experiments/results/*
 !experiments/results/.gitkeep
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/medqa_sample.jsonl
 data/processed/*
 !data/processed/.gitkeep
 !data/processed/cardiology_knowledge.json
+!data/processed/medqa_cardiology_sample.jsonl
 
 # OS/editor files
 .DS_Store

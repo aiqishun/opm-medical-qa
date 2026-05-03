@@ -5,8 +5,10 @@ states, and links between them. This prototype keeps the representation small
 and readable so the QA output can show why an answer was selected.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Iterable, List
+from typing import Iterable, Mapping
 
 
 @dataclass(frozen=True)
@@ -18,7 +20,7 @@ class OPMLink:
     target: str
 
     @classmethod
-    def from_dict(cls, data: dict[str, str]) -> "OPMLink":
+    def from_dict(cls, data: Mapping[str, str]) -> "OPMLink":
         """Create a link from JSON knowledge-base data."""
 
         return cls(
@@ -43,10 +45,10 @@ class OPMGraph:
         states: Iterable[str] | None = None,
         links: Iterable[OPMLink] | None = None,
     ) -> None:
-        self.objects = list(objects or [])
-        self.processes = list(processes or [])
-        self.states = list(states or [])
-        self.links = list(links or [])
+        self.objects: list[str] = list(objects or [])
+        self.processes: list[str] = list(processes or [])
+        self.states: list[str] = list(states or [])
+        self.links: list[OPMLink] = list(links or [])
 
     @classmethod
     def from_topic_parts(
@@ -54,7 +56,7 @@ class OPMGraph:
         objects: Iterable[str],
         processes: Iterable[str],
         states: Iterable[str],
-        links: Iterable[dict[str, str]],
+        links: Iterable[Mapping[str, str]],
     ) -> "OPMGraph":
         """Build a graph from the JSON fields stored for one topic."""
 
@@ -65,17 +67,22 @@ class OPMGraph:
             links=[OPMLink.from_dict(link) for link in links],
         )
 
+    def is_empty(self) -> bool:
+        """True when the graph has no elements at all."""
+
+        return not (self.objects or self.processes or self.states or self.links)
+
     def format_as_text(self) -> str:
         """Format objects, processes, states, and links as readable text."""
 
-        sections = [
+        sections = (
             ("OPM objects", self.objects),
             ("OPM processes", self.processes),
             ("OPM states", self.states),
             ("OPM links", [link.format() for link in self.links]),
-        ]
+        )
 
-        lines: List[str] = []
+        lines: list[str] = []
         for title, items in sections:
             lines.append(f"{title}:")
             if items:
@@ -86,7 +93,8 @@ class OPMGraph:
 
         return "\n".join(lines).rstrip()
 
-    def path_as_text(self, path: Iterable[str]) -> str:
+    @staticmethod
+    def path_as_text(path: Iterable[str]) -> str:
         """Format a reasoning path for display."""
 
         return " -> ".join(path)
