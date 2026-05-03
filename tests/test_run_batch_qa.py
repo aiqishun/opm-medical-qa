@@ -1,0 +1,351 @@
+"""Tests for the ``run_batch_qa.py`` CLI script."""
+
+from __future__ import annotations
+
+import io
+import json
+import subprocess
+import sys
+import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+import run_batch_qa
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_KB = PROJECT_ROOT / "data" / "processed" / "cardiology_knowledge.json"
+BUNDLED_INPUT = PROJECT_ROOT / "data" / "processed" / "medqa_cardiology_sample.jsonl"
+SCRIPT_PATH = PROJECT_ROOT / "scripts" / "run_batch_qa.py"
+
+
+def _write_jsonl(path: Path, records: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as file:
+        for record in records:
+            file.write(json.dumps(record) + "\n")
+
+
+def _read_jsonl(path: Path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line]
+
+
+class SafeFilenameStemTests(unittest.TestCase):
+    def test_uses_id_when_present(self) -> None:
+        self.assertEqual(run_batch_qa._safe_filename_stem("med_qa_001", 0), "med_qa_001")
+
+    def test_sanitizes_id_special_characters(self) -> None:
+        self.assertEqual(
+            run_batch_qa._safe_filename_stem("MedQA / case 12!", 0),
+            "MedQA_case_12",
+        )
+
+    def test_falls_back_to_index_when_id_missing(self) -> None:
+        self.assertEqual(run_batch_qa._safe_filename_stem(None, 7), "q0007")
+
+    def test_falls_back_to_index_when_id_sanitizes_to_empty(self) -> None:
+        self.assertEqual(run_batch_qa._safe_filename_stem("///", 3), "q0003")
+
+    def test_truncates_long_ids(self) -> None:
+        long_id = "x" * 200
+        stem = run_batch_qa._safe_filename_stem(long_id, 0)
+        self.assertEqual(len(stem), 80)
+
+
+class RunBatchTests(unittest.TestCase):
+    def test_happy_path_writes_results_and_graphs(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            _write_jsonl(
+                input_path,
+                [
+                    {
+                        "id": "case-001",
+                        "question": "What causes myocardial infarction?",
+                    },
+                    {
+                        "id": "case-002",
+                        "question": "What causes hypertension?",
+                    },
+                ],
+            )
+
+            summary = run_batch_qa.run_batch(
+                input_path=input_path,
+                output_path=output_path,
+                graphs_dir=graphs_dir,
+                knowledge_base_path=DEFAULT_KB,
+            )
+
+            self.assertEqual(summary.total_records, 2)
+            self.assertEqual(summary.matched, 2)
+            self.assertEqual(summary.fallback, 0)
+            self.assertEqual(summary.skipped_missing_question, 0)
+
+            results = _read_jsonl(output_path)
+            self.assertEqual(len(results), 2)
+
+            first = results[0]
+            self.assertEqual(first["id"], "case-001")
+            self.assertEqual(first["matched_topic"], "myocardial infarction")
+            self.assertEqual(first["status"], "matched")
+            self.assertEqual(first["graph_path"], str(graphs_dir / "case-001.json"))
+            self.assertTrue(Path(first["graph_path"]).exists())
+            self.assertEqual(
+                first["reasoning_path"],
+                [
+                    "Atherosclerosis",
+                    "Coronary artery blockage",
+                    "Reduced blood flow",
+                    "Myocardial infarction",
+                ],
+            )
+
+            graph_payload = json.loads(Path(first["graph_path"]).read_text("utf-8"))
+            self.assertIn("Coronary artery", graph_payload["objects"])
+
+    def test_records_without_id_get_indexed_filenames(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            _write_jsonl(
+                input_path,
+                [
+                    {"question": "What causes myocardial infarction?"},
+                    {"question": "What causes hypertension?"},
+                ],
+            )
+
+            run_batch_qa.run_batch(
+                input_path=input_path,
+                output_path=output_path,
+                graphs_dir=graphs_dir,
+                knowledge_base_path=DEFAULT_KB,
+            )
+
+            results = _read_jsonl(output_path)
+            self.assertIsNone(results[0]["id"])
+            self.assertEqual(Path(results[0]["graph_path"]).name, "q0000.json")
+            self.assertEqual(Path(results[1]["graph_path"]).name, "q0001.json")
+
+    def test_unmatched_record_has_null_graph_path_and_fallback_status(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            _write_jsonl(
+                input_path,
+                [
+                    {"id": "off-topic", "question": "How do glaciers form?"},
+                    {"id": "cardio", "question": "What causes hypertension?"},
+                ],
+            )
+
+            summary = run_batch_qa.run_batch(
+                input_path=input_path,
+                output_path=output_path,
+                graphs_dir=graphs_dir,
+                knowledge_base_path=DEFAULT_KB,
+            )
+
+            results = _read_jsonl(output_path)
+            self.assertEqual(summary.matched, 1)
+            self.assertEqual(summary.fallback, 1)
+            self.assertEqual(results[0]["status"], "fallback")
+            self.assertIsNone(results[0]["graph_path"])
+            self.assertEqual(results[0]["matched_topic"], None)
+            self.assertEqual(results[1]["status"], "matched")
+            self.assertFalse((graphs_dir / "off-topic.json").exists())
+            self.assertTrue((graphs_dir / "cardio.json").exists())
+
+    def test_records_without_question_are_skipped(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            _write_jsonl(
+                input_path,
+                [
+                    {"id": "no-question"},
+                    {"id": "blank", "question": "   "},
+                    {"id": "wrong-type", "question": 123},
+                    {"id": "ok", "question": "What causes hypertension?"},
+                ],
+            )
+
+            summary = run_batch_qa.run_batch(
+                input_path=input_path,
+                output_path=output_path,
+                graphs_dir=graphs_dir,
+                knowledge_base_path=DEFAULT_KB,
+            )
+
+            self.assertEqual(summary.total_records, 4)
+            self.assertEqual(summary.skipped_missing_question, 3)
+            self.assertEqual(summary.matched, 1)
+
+            results = _read_jsonl(output_path)
+            self.assertEqual(len(results), 1)
+            self.assertEqual(results[0]["id"], "ok")
+
+    def test_empty_input_writes_empty_results_and_no_graphs(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            input_path.write_text("", encoding="utf-8")
+
+            summary = run_batch_qa.run_batch(
+                input_path=input_path,
+                output_path=output_path,
+                graphs_dir=graphs_dir,
+                knowledge_base_path=DEFAULT_KB,
+            )
+
+            self.assertEqual(summary.total_records, 0)
+            self.assertEqual(summary.matched, 0)
+            self.assertEqual(output_path.read_text(encoding="utf-8"), "")
+            self.assertFalse(graphs_dir.exists())
+
+
+class MainTests(unittest.TestCase):
+    def test_main_runs_against_bundled_sample(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = run_batch_qa.main(
+                    [
+                        "--input",
+                        str(BUNDLED_INPUT),
+                        "--output",
+                        str(output_path),
+                        "--graphs-dir",
+                        str(graphs_dir),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            stdout = buffer.getvalue()
+            self.assertIn(f"Read 2 records from: {BUNDLED_INPUT}", stdout)
+            self.assertIn("Matched: 2", stdout)
+            self.assertIn(f"Wrote results to: {output_path}", stdout)
+            results = _read_jsonl(output_path)
+            self.assertEqual(len(results), 2)
+            self.assertTrue(all(r["status"] == "matched" for r in results))
+
+    def test_main_reports_missing_input(self) -> None:
+        with TemporaryDirectory() as tmp:
+            err = io.StringIO()
+            with redirect_stderr(err), redirect_stdout(io.StringIO()):
+                exit_code = run_batch_qa.main(
+                    [
+                        "--input",
+                        str(Path(tmp) / "missing.jsonl"),
+                        "--output",
+                        str(Path(tmp) / "out.jsonl"),
+                        "--graphs-dir",
+                        str(Path(tmp) / "graphs"),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("File not found", err.getvalue())
+
+    def test_main_reports_invalid_jsonl(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            input_path.write_text(
+                '{"question": "ok"}\n{not valid}\n',
+                encoding="utf-8",
+            )
+
+            err = io.StringIO()
+            with redirect_stderr(err), redirect_stdout(io.StringIO()):
+                exit_code = run_batch_qa.main(
+                    [
+                        "--input",
+                        str(input_path),
+                        "--output",
+                        str(tmp_path / "out.jsonl"),
+                        "--graphs-dir",
+                        str(tmp_path / "graphs"),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("Invalid JSON", err.getvalue())
+            self.assertIn("line 2", err.getvalue())
+
+    def test_main_reports_missing_knowledge_base(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            _write_jsonl(input_path, [{"question": "What causes hypertension?"}])
+
+            err = io.StringIO()
+            with redirect_stderr(err), redirect_stdout(io.StringIO()):
+                exit_code = run_batch_qa.main(
+                    [
+                        "--input",
+                        str(input_path),
+                        "--output",
+                        str(tmp_path / "out.jsonl"),
+                        "--graphs-dir",
+                        str(tmp_path / "graphs"),
+                        "--knowledge-base",
+                        str(tmp_path / "missing-kb.json"),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 1)
+            self.assertIn("File not found", err.getvalue())
+
+
+class ScriptInvocationTests(unittest.TestCase):
+    def test_script_runs_against_bundled_sample(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT_PATH),
+                    "--input",
+                    str(BUNDLED_INPUT),
+                    "--output",
+                    str(output_path),
+                    "--graphs-dir",
+                    str(graphs_dir),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            self.assertIn("Matched:", result.stdout)
+            self.assertTrue(output_path.exists())
+            results = _read_jsonl(output_path)
+            self.assertEqual(len(results), 2)
+            for record in results:
+                if record["status"] == "matched":
+                    self.assertTrue(Path(record["graph_path"]).exists())
+
+
+if __name__ == "__main__":
+    unittest.main()

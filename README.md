@@ -39,6 +39,9 @@ flowchart TD
 
     RAW[data/raw/medqa_sample.jsonl] --> PREP[scripts/prepare_medqa.py]
     PREP --> FILTERED[data/processed/medqa_cardiology_sample.jsonl]
+    FILTERED --> BATCH[scripts/run_batch_qa.py]
+    BATCH --> RESULTS[experiments/results/batch_qa_results.jsonl]
+    BATCH --> GRAPHS[outputs/graphs/batch/*.json]
 ```
 
 ## Research Goal
@@ -53,6 +56,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | Area | Files | Responsibility |
 | --- | --- | --- |
 | CLI demos | `scripts/run_qa.py` | Parse a question, load the KB, run QA, print structured output |
+| Batch experiments | `scripts/run_batch_qa.py` | Run the reasoner over a JSONL file and save per-question results plus OPM graphs |
 | MedQA placeholder preprocessing | `scripts/prepare_medqa.py` | Filter a JSONL file for cardiology-related examples using simple keywords |
 | Data helpers | `src/data_io.py` | Read and write JSON/JSONL files with friendly errors |
 | Topic model | `src/reasoning/topic.py` | Load and validate cardiology topic records |
@@ -217,6 +221,64 @@ python scripts/prepare_medqa.py --input data/raw/your_medqa_file.jsonl
 
 No full MedQA evaluation is included or claimed.
 
+## Batch Experiments
+
+`scripts/run_batch_qa.py` runs the existing rule-based reasoner over every
+question in a JSONL file and saves a structured result row per question, plus
+one OPM graph JSON per matched question.
+
+```bash
+python scripts/run_batch_qa.py \
+    --input data/processed/medqa_cardiology_sample.jsonl \
+    --output experiments/results/batch_qa_results.jsonl \
+    --graphs-dir outputs/graphs/batch/
+```
+
+All three flags default to those paths, so the bundled synthetic sample can be
+processed with just:
+
+```bash
+python scripts/run_batch_qa.py
+```
+
+The script prints a short summary and exits non-zero on missing input, invalid
+JSONL, or a missing knowledge base:
+
+```text
+Read 2 records from: data/processed/medqa_cardiology_sample.jsonl
+Matched: 2
+Fallback: 0
+Skipped (missing question): 0
+Wrote results to: experiments/results/batch_qa_results.jsonl
+Exported graphs to: outputs/graphs/batch
+```
+
+Each line of the output JSONL has this shape:
+
+```json
+{
+  "id": "case-001",
+  "question": "What causes myocardial infarction?",
+  "matched_topic": "myocardial infarction",
+  "answer": "...",
+  "explanation": "...",
+  "reasoning_path": ["Atherosclerosis", "Coronary artery blockage", "Reduced blood flow", "Myocardial infarction"],
+  "graph_path": "outputs/graphs/batch/case-001.json",
+  "status": "matched"
+}
+```
+
+Behavior notes:
+
+- `id` is preserved when the input record has one and used as the graph
+  filename stem (sanitized to `[A-Za-z0-9_-]`). When absent, the filename
+  falls back to `q{index:04d}.json`.
+- Records without a string `question` field are skipped and counted in the
+  summary rather than aborting the run.
+- Unmatched questions still produce an output row, but `matched_topic` and
+  `graph_path` are `null` and `status` is `"fallback"`.
+- The same non-clinical-use disclaimer applies to all generated artifacts.
+
 ## Tests
 
 Run the test suite from the project root:
@@ -228,13 +290,15 @@ python -m unittest discover -t . -s tests
 Current local status:
 
 ```text
-Ran 69 tests
+Ran 84 tests
 OK
 ```
 
 The tests cover JSON/JSONL helpers, topic loading, keyword matching, reasoning
 fallbacks, OPM formatting, OPM JSON export (including the `--export-graph` CLI
-flag), CLI output, and the placeholder MedQA preprocessing script.
+flag), the batch experiment script (happy path, fallbacks, missing/blank
+questions, filename rules, and error reporting), CLI output, and the placeholder
+MedQA preprocessing script.
 
 ## Roadmap
 
