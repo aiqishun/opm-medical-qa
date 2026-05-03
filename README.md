@@ -194,12 +194,31 @@ objects/processes/states/links.
 
 The full MedQA dataset is **not included** in this repository.
 
-This repository only contains a tiny synthetic JSONL sample for testing the
-preprocessing script:
+This repository only contains a small, hand-written synthetic JSONL sample for
+exercising the preprocessing, batch QA, and summary report pipelines end to
+end:
 
 ```text
 data/raw/medqa_sample.jsonl
 ```
+
+### Synthetic sample coverage
+
+The sample contains 15 synthetic, MedQA-style records — every question, option,
+and explanation was authored for this prototype and **does not** come from the
+real MedQA dataset. The split is designed to exercise each stage of the
+pipeline:
+
+| Bucket | Count | Purpose |
+| --- | ---: | --- |
+| Supported topics (matched in batch QA) | 10 | Cover all 6 required topics — myocardial infarction (×2), hypertension (×2), heart failure, arrhythmia, coronary artery disease, angina — plus 2 bonus topics (atherosclerosis, cardiac arrest) |
+| Cardiology-adjacent fallbacks | 2 | Pass the keyword preprocessing filter but intentionally fall outside the prototype knowledge base (post-valve-replacement anticoagulation, cardiac rehabilitation) |
+| Non-cardiology controls | 3 | Endocrine, dermatology, gastroenterology — used to confirm the preprocessing filter excludes them |
+
+Running `scripts/prepare_medqa.py` on the raw file therefore yields **12**
+cardiology-related records (10 supported + 2 fallback). Running
+`scripts/run_batch_qa.py` over those 12 then produces 10 matched results, 2
+fallbacks, and 10 OPM graph JSON files.
 
 Run the placeholder cardiology filter with:
 

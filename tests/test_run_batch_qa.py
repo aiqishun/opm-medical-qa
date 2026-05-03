@@ -239,12 +239,18 @@ class MainTests(unittest.TestCase):
 
             self.assertEqual(exit_code, 0)
             stdout = buffer.getvalue()
-            self.assertIn(f"Read 2 records from: {BUNDLED_INPUT}", stdout)
-            self.assertIn("Matched: 2", stdout)
+            # Bundled processed sample: 12 cardiology records — 10 supported
+            # topics + 2 cardiology-adjacent fallback questions.
+            self.assertIn(f"Read 12 records from: {BUNDLED_INPUT}", stdout)
+            self.assertIn("Matched: 10", stdout)
+            self.assertIn("Fallback: 2", stdout)
             self.assertIn(f"Wrote results to: {output_path}", stdout)
             results = _read_jsonl(output_path)
-            self.assertEqual(len(results), 2)
-            self.assertTrue(all(r["status"] == "matched" for r in results))
+            self.assertEqual(len(results), 12)
+            matched = [r for r in results if r["status"] == "matched"]
+            fallback = [r for r in results if r["status"] == "fallback"]
+            self.assertEqual(len(matched), 10)
+            self.assertEqual(len(fallback), 2)
 
     def test_main_reports_missing_input(self) -> None:
         with TemporaryDirectory() as tmp:
@@ -408,10 +414,14 @@ class ScriptInvocationTests(unittest.TestCase):
             self.assertIn("Matched:", result.stdout)
             self.assertTrue(output_path.exists())
             results = _read_jsonl(output_path)
-            self.assertEqual(len(results), 2)
+            self.assertEqual(len(results), 12)
+            statuses = {r["status"] for r in results}
+            self.assertEqual(statuses, {"matched", "fallback"})
             for record in results:
                 if record["status"] == "matched":
                     self.assertTrue(Path(record["graph_path"]).exists())
+                else:
+                    self.assertIsNone(record["graph_path"])
 
 
 if __name__ == "__main__":
