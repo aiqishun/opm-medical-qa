@@ -60,6 +60,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | CLI demos | `scripts/run_qa.py` | Parse a question, load the KB, run QA, print structured output |
 | Batch experiments | `scripts/run_batch_qa.py` | Run the reasoner over a JSONL file and save per-question results plus OPM graphs |
 | MedQA placeholder preprocessing | `scripts/prepare_medqa.py` | Filter a JSONL file for cardiology-related examples using simple keywords |
+| MedQA schema inspection | `scripts/inspect_medqa_schema.py` | Summarize a local JSONL file's fields and print a small redacted preview |
 | Data helpers | `src/data_io.py` | Read and write JSON/JSONL files with friendly errors |
 | Topic model | `src/reasoning/topic.py` | Load and validate cardiology topic records |
 | Matching | `src/reasoning/matcher.py` | Score a question against topic keywords and patterns |
@@ -515,6 +516,38 @@ cardiology-related records (14 supported + 2 fallback). Running
 `scripts/run_batch_qa.py` over those 16 then produces 14 matched results, 2
 fallbacks, and 14 OPM graph JSON files.
 
+### Local real-MedQA preparation
+
+If you have legitimate local access to the real MedQA dataset, keep it outside
+git history. A convenient local path is:
+
+```text
+data/raw/medqa_full.jsonl
+```
+
+Files under `data/raw/` are ignored by default, except for the tiny synthetic
+sample that is intentionally tracked for tests. Do not commit real MedQA data or
+processed derivatives from it.
+
+Before filtering a real JSONL file, inspect its shape:
+
+```bash
+python scripts/inspect_medqa_schema.py --input data/raw/medqa_full.jsonl
+```
+
+The inspector reports record counts, observed top-level fields, coverage for
+`question`, `options`, `answer`, and `answer_idx`, and a small redacted preview
+of the first records. It truncates long text by default so full medical contents
+are not printed into the terminal.
+
+To change the number of previewed records:
+
+```bash
+python scripts/inspect_medqa_schema.py \
+    --input data/raw/medqa_full.jsonl \
+    --max-preview 3
+```
+
 Run the placeholder cardiology filter with:
 
 ```bash
@@ -717,7 +750,7 @@ using Python 3.11.
 Current local status:
 
 ```text
-Ran 163 tests
+Ran 172 tests
 OK
 ```
 
@@ -729,7 +762,8 @@ fallbacks, missing/blank questions, filename rules, error reporting, and the
 `--summary` Markdown report), the keyword-only baseline matcher and the
 `run_baseline_comparison.py` script (per-question row shape, count
 aggregations, divergence between baseline and OPM, missing input/KB error
-reporting), CLI output, and the placeholder MedQA preprocessing script.
+reporting), CLI output, the placeholder MedQA preprocessing script, and the
+local MedQA schema inspection script.
 
 ## Roadmap
 
