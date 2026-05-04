@@ -56,6 +56,46 @@ class HeaderAndDisclaimerTests(unittest.TestCase):
         self.assertIn("research artifacts", markdown)
 
 
+class SampleLabelTests(unittest.TestCase):
+    def test_synthetic_sample_label_for_bundled_input(self) -> None:
+        markdown = _build(
+            [],
+            input_path=Path("data/processed/medqa_cardiology_sample.jsonl"),
+        )
+        self.assertIn("Prototype run on a synthetic sample.", markdown)
+        self.assertNotIn("local MedQA-derived sample", markdown)
+        self.assertNotIn("local input sample", markdown)
+
+    def test_local_medqa_label_for_real_path(self) -> None:
+        markdown = _build(
+            [],
+            input_path=Path(
+                "data/processed/medqa_cardiology_real_sample.jsonl"
+            ),
+        )
+        self.assertIn(
+            "Prototype run on a local MedQA-derived sample.", markdown
+        )
+
+    def test_local_medqa_label_when_path_contains_real_keyword(self) -> None:
+        markdown = _build(
+            [], input_path=Path("data/raw/real_medqa_full.jsonl")
+        )
+        self.assertIn(
+            "Prototype run on a local MedQA-derived sample.", markdown
+        )
+
+    def test_generic_label_when_path_does_not_match(self) -> None:
+        markdown = _build([], input_path=Path("data/processed/other.jsonl"))
+        self.assertIn("Prototype run on a local input sample.", markdown)
+
+    def test_label_detection_is_case_insensitive(self) -> None:
+        markdown = _build(
+            [], input_path=Path("DATA/RAW/REAL_DATA.jsonl")
+        )
+        self.assertIn("local MedQA-derived sample", markdown)
+
+
 class AllMatchedTests(unittest.TestCase):
     def test_counts_section_for_all_matched(self) -> None:
         results = [

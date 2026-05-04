@@ -195,12 +195,16 @@ def run_batch(
             "id": record_id,
             "question": question,
             "matched_topic": result.matched_topic,
+            "match_score": result.match_score,
             "answer": result.answer,
             "explanation": result.explanation,
             "reasoning_path": list(result.reasoning_path),
             "graph_path": graph_path,
             "status": STATUS_MATCHED if result.is_match else STATUS_FALLBACK,
         }
+        matched_terms = record.get("matched_terms")
+        if isinstance(matched_terms, list):
+            row["matched_terms"] = list(matched_terms)
         if mermaid_dir is not None:
             row["mermaid_path"] = mermaid_path
         results.append(row)

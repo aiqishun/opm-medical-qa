@@ -59,7 +59,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | --- | --- | --- |
 | CLI demos | `scripts/run_qa.py` | Parse a question, load the KB, run QA, print structured output |
 | Batch experiments | `scripts/run_batch_qa.py` | Run the reasoner over a JSONL file and save per-question results plus OPM graphs |
-| MedQA placeholder preprocessing | `scripts/prepare_medqa.py` | Filter a JSONL file for cardiology-related examples using simple keywords |
+| MedQA placeholder preprocessing | `scripts/prepare_medqa.py` | Filter a JSONL file for cardiology-related examples using broad or strict keyword modes; writes `matched_terms` for audit |
 | MedQA schema inspection | `scripts/inspect_medqa_schema.py` | Summarize a local JSONL file's fields and print a small redacted preview |
 | Data helpers | `src/data_io.py` | Read and write JSON/JSONL files with friendly errors |
 | Topic model | `src/reasoning/topic.py` | Load and validate cardiology topic records |
@@ -71,6 +71,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | Output formatting | `src/formatting.py` | Render answer, explanation, reasoning path, and OPM sections |
 | Batch summaries | `src/evaluation/summary.py` | Render a Markdown report from a batch QA run |
 | Baseline comparison | `src/evaluation/baseline.py`, `scripts/run_baseline_comparison.py` | Keyword-only baseline matcher and Markdown report comparing it against the OPM reasoner |
+| Batch audit | `src/evaluation/audit.py`, `scripts/audit_batch_results.py` | Sample matched/fallback rows from a batch results JSONL and write a qualitative Markdown audit (counts, top-N topic table, dominance check, sampled records) |
 | Tests | `tests/` | Unit and CLI behavior checks |
 
 ## Quick Start
@@ -567,6 +568,26 @@ under `data/raw/` and pass it explicitly:
 python scripts/prepare_medqa.py --input data/raw/your_medqa_file.jsonl
 ```
 
+The default filter mode is `broad` for backward compatibility. Broad mode is
+useful for the bundled synthetic sample, but it can over-select real records
+when generic terms appear in vital signs or past history. For real-data
+inspection, prefer the more conservative strict mode:
+
+```bash
+python scripts/prepare_medqa.py \
+    --input data/raw/medqa_full.jsonl \
+    --output data/processed/medqa_cardiology_strict.jsonl \
+    --filter-mode strict
+```
+
+Strict mode avoids generic triggers such as `blood pressure`, `pulse`, `heart
+rate`, `artery`, and `vascular`, and instead looks for topic-specific terms such
+as `myocardial infarction`, `angina`, `coronary artery disease`, `heart
+failure`, `arrhythmia`, `cardiac arrest`, `ECG`, `EKG`, `atrial fibrillation`,
+`ventricular tachycardia`, `myocarditis`, `pericarditis`, and
+`cardiomyopathy`. Every filtered output row includes `matched_terms` so sampled
+records can be audited later.
+
 No full MedQA evaluation is included or claimed.
 
 ## Batch Experiments
@@ -608,6 +629,8 @@ Each line of the output JSONL has this shape:
   "id": "case-001",
   "question": "What causes myocardial infarction?",
   "matched_topic": "myocardial infarction",
+  "match_score": 12,
+  "matched_terms": ["myocardial infarction", "coronary"],
   "answer": "...",
   "explanation": "...",
   "reasoning_path": ["Atherosclerosis", "Coronary artery blockage", "Reduced blood flow", "Myocardial infarction"],
@@ -625,6 +648,9 @@ Behavior notes:
   summary rather than aborting the run.
 - Unmatched questions still produce an output row, but `matched_topic` and
   `graph_path` are `null` and `status` is `"fallback"`.
+- `match_score` is the transparent rule-based topic score. `matched_terms` is
+  included when the input row came from `prepare_medqa.py` and records the
+  preprocessing terms that selected the row.
 - The same non-clinical-use disclaimer applies to all generated artifacts.
 
 ### Markdown summary report
@@ -736,6 +762,57 @@ contains:
 > weak. The numbers are useful only for prototype-level introspection, not for
 > any clinical or benchmark conclusion.
 
+## Batch Results Audit
+
+`scripts/audit_batch_results.py` is a **qualitative** audit layer over the
+JSONL written by `scripts/run_batch_qa.py`. It is intended for spot-checking
+larger runs — for example, a batch over a local MedQA-derived cardiology
+subset — where a high match rate may simply reflect broad keyword/topic
+matching rather than clinical correctness.
+
+The script:
+
+- counts matched / fallback rows and the matched-topic frequency,
+- shows the top 10 most-frequent matched topics and the full topic table,
+- raises a ⚠ warning when any single topic accounts for more than **40%** of
+  matched cases (configurable in `src/evaluation/audit.py`),
+- random-samples up to `--sample-size` records from each of the matched and
+  fallback buckets (deterministic via `--seed`), and
+- writes a Markdown audit report with the question, matched topic, status,
+  preprocessing `matched_terms` when available, truncated answer, and graph
+  path for every sampled record.
+
+Run it on a local batch results file (defaults shown):
+
+```bash
+python scripts/audit_batch_results.py \
+    --input experiments/results/real_medqa_batch_qa_results.jsonl \
+    --output experiments/results/real_medqa_audit.md \
+    --sample-size 30 \
+    --seed 42
+```
+
+Stdout reports a short summary plus any topic-dominance warning, e.g.:
+
+```text
+Read 5617 records from: experiments/results/real_medqa_batch_qa_results.jsonl
+Matched: 5554
+Fallback: 63
+Sampled matched / fallback: 30 / 30
+⚠ Topic dominance: 'coronary artery disease' = 57.1% of matched records
+Wrote audit report to: experiments/results/real_medqa_audit.md
+```
+
+> **Important — local outputs only.** Audit reports generated against a real
+> MedQA-derived batch contain question text and answers from your local
+> dataset. **Do not commit these files** (they sit under `experiments/` and
+> `outputs/`, which are git-ignored for derived artifacts). The audit is a
+> **qualitative, manual** inspection aid — it is **not** an accuracy
+> evaluation, makes **no** medical accuracy claims, and a high match rate
+> in the audit is **not** evidence of clinical correctness or of MedQA
+> performance. Use the sampled rows to read questions and answers by hand
+> before drawing any conclusions.
+
 ## Tests
 
 Run the test suite from the project root:
@@ -750,7 +827,7 @@ using Python 3.11.
 Current local status:
 
 ```text
-Ran 172 tests
+Ran 222 tests
 OK
 ```
 
@@ -759,11 +836,15 @@ fallbacks, OPM formatting, OPM JSON export (including the `--export-graph` CLI
 flag), Mermaid diagram conversion and export (including the `--export-mermaid`
 and `--mermaid-dir` CLI flags), the batch experiment script (happy path,
 fallbacks, missing/blank questions, filename rules, error reporting, and the
-`--summary` Markdown report), the keyword-only baseline matcher and the
-`run_baseline_comparison.py` script (per-question row shape, count
-aggregations, divergence between baseline and OPM, missing input/KB error
-reporting), CLI output, the placeholder MedQA preprocessing script, and the
-local MedQA schema inspection script.
+`--summary` Markdown report including the input-path-aware "synthetic" /
+"local MedQA-derived" / "local input" sample-label disclaimer), the
+keyword-only baseline matcher and the `run_baseline_comparison.py` script
+(per-question row shape, count aggregations, divergence between baseline and
+OPM, missing input/KB error reporting), the qualitative batch-audit module
+and the `audit_batch_results.py` script (sampling determinism, dominance
+warning above 40%, friendly empty-input rendering, error reporting), CLI
+output, the placeholder MedQA preprocessing script, and the local MedQA
+schema inspection script.
 
 ## Roadmap
 

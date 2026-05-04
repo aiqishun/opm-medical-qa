@@ -14,11 +14,29 @@ from typing import Any, Mapping, Sequence
 STATUS_MATCHED = "matched"
 STATUS_FALLBACK = "fallback"
 
-_PROTOTYPE_NOTE = (
-    "> Prototype run on a small synthetic sample. This is **not** a full MedQA "
-    "evaluation and reports no medical performance metrics. Generated graphs "
-    "are research artifacts, not clinical knowledge."
-)
+
+def _sample_label(input_path: Path) -> str:
+    """Pick a short label describing what kind of sample this run used.
+
+    Detection is purely path-based — the function never reads the file. The
+    label is folded into the prototype-note disclaimer so the wording matches
+    what the user actually ran on without overclaiming.
+    """
+    name = str(input_path).lower()
+    if "medqa_cardiology_real_sample" in name or "real" in name:
+        return "local MedQA-derived sample"
+    if "medqa_cardiology_sample" in name:
+        return "synthetic sample"
+    return "local input sample"
+
+
+def _prototype_note(input_path: Path) -> str:
+    label = _sample_label(input_path)
+    return (
+        f"> Prototype run on a {label}. This is **not** a full MedQA "
+        "evaluation and reports no medical performance metrics. Generated "
+        "graphs are research artifacts, not clinical knowledge."
+    )
 
 
 def build_markdown_summary(
@@ -46,7 +64,7 @@ def build_markdown_summary(
     sections = [
         "# OPM Medical QA — Batch Summary",
         "",
-        _PROTOTYPE_NOTE,
+        _prototype_note(input_path),
         "",
         "## Inputs and outputs",
         "",

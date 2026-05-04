@@ -72,6 +72,40 @@ class IsCardiologyRelatedTests(unittest.TestCase):
         )
 
 
+class MatchedTermsTests(unittest.TestCase):
+    def test_reports_all_matching_terms_once(self) -> None:
+        record = {
+            "question": "Myocardial infarction after coronary artery disease.",
+            "explanation": "Myocardial infarction is repeated.",
+        }
+
+        terms = prepare_medqa.matched_terms_for_record(
+            record,
+            keywords=("myocardial infarction", "coronary artery disease"),
+        )
+
+        self.assertEqual(terms, ["myocardial infarction", "coronary artery disease"])
+
+    def test_strict_terms_avoid_generic_vital_sign_mentions(self) -> None:
+        record = {
+            "question": "Past medical history includes hypertension.",
+            "explanation": "Vital signs show heart rate 80 and normal blood pressure.",
+        }
+
+        broad_terms = prepare_medqa.matched_terms_for_record(
+            record,
+            prepare_medqa.CARDIOLOGY_KEYWORDS,
+        )
+        strict_terms = prepare_medqa.matched_terms_for_record(
+            record,
+            prepare_medqa.STRICT_CARDIOLOGY_KEYWORDS,
+        )
+
+        self.assertIn("heart", broad_terms)
+        self.assertIn("blood pressure", broad_terms)
+        self.assertEqual(strict_terms, [])
+
+
 class FilterCardiologyRecordsTests(unittest.TestCase):
     def test_keeps_only_matching_records(self) -> None:
         records = [
@@ -82,6 +116,23 @@ class FilterCardiologyRecordsTests(unittest.TestCase):
         filtered = prepare_medqa.filter_cardiology_records(records)
         self.assertEqual(len(filtered), 2)
         self.assertEqual(filtered[0]["question"], "What causes angina?")
+        self.assertEqual(filtered[0]["matched_terms"], ["angina"])
+
+    def test_strict_mode_keeps_topic_specific_terms_only(self) -> None:
+        records = [
+            {"question": "Past medical history includes hypertension."},
+            {"question": "ECG shows atrial fibrillation."},
+            {"question": "Blood pressure is 120 over 80."},
+        ]
+
+        filtered = prepare_medqa.filter_cardiology_records(
+            records,
+            keywords=prepare_medqa.STRICT_CARDIOLOGY_KEYWORDS,
+        )
+
+        self.assertEqual(len(filtered), 1)
+        self.assertEqual(filtered[0]["question"], "ECG shows atrial fibrillation.")
+        self.assertEqual(filtered[0]["matched_terms"], ["ecg", "atrial fibrillation"])
 
 
 class MainTests(unittest.TestCase):
@@ -107,7 +158,38 @@ class MainTests(unittest.TestCase):
             self.assertIn("Cardiology examples: 1", buffer.getvalue())
             written = output_path.read_text(encoding="utf-8").splitlines()
             self.assertEqual(len(written), 1)
-            self.assertEqual(json.loads(written[0])["question"], "What causes angina?")
+            row = json.loads(written[0])
+            self.assertEqual(row["question"], "What causes angina?")
+            self.assertEqual(row["matched_terms"], ["angina"])
+
+    def test_main_strict_mode_excludes_generic_broad_terms(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "in.jsonl"
+            output_path = Path(tmp) / "out.jsonl"
+            _write_jsonl(
+                input_path,
+                [
+                    {"question": "Past medical history includes hypertension."},
+                    {"question": "What finding on ECG suggests arrhythmia?"},
+                ],
+            )
+
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = prepare_medqa.main(
+                    [
+                        "--input", str(input_path),
+                        "--output", str(output_path),
+                        "--filter-mode", "strict",
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("Filter mode: strict", buffer.getvalue())
+            written = output_path.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(written), 1)
+            row = json.loads(written[0])
+            self.assertEqual(row["matched_terms"], ["arrhythmia", "ecg"])
 
     def test_main_reports_missing_input(self) -> None:
         with TemporaryDirectory() as tmp:
@@ -171,7 +253,9 @@ class MainTests(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             written = output_path.read_text(encoding="utf-8").splitlines()
             self.assertEqual(len(written), 1)
-            self.assertEqual(json.loads(written[0])["question"], "Treatment for diabetes")
+            row = json.loads(written[0])
+            self.assertEqual(row["question"], "Treatment for diabetes")
+            self.assertEqual(row["matched_terms"], ["diabetes"])
 
 
 class ScriptInvocationTests(unittest.TestCase):

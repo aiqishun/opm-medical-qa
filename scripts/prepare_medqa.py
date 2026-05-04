@@ -40,6 +40,31 @@ CARDIOLOGY_KEYWORDS: tuple[str, ...] = (
     "blood pressure",
 )
 
+STRICT_CARDIOLOGY_KEYWORDS: tuple[str, ...] = (
+    "myocardial infarction",
+    "angina",
+    "coronary artery disease",
+    "heart failure",
+    "arrhythmia",
+    "cardiac arrest",
+    "valvular disease",
+    "murmur",
+    "ecg",
+    "ekg",
+    "echocardiography",
+    "atrial fibrillation",
+    "ventricular tachycardia",
+    "myocarditis",
+    "pericarditis",
+    "cardiomyopathy",
+    "endocarditis",
+)
+
+FILTER_MODE_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "broad": CARDIOLOGY_KEYWORDS,
+    "strict": STRICT_CARDIOLOGY_KEYWORDS,
+}
+
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -64,6 +89,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help=(
             "Override the default cardiology keyword list. Pass once per keyword "
             "to filter on a custom vocabulary."
+        ),
+    )
+    parser.add_argument(
+        "--filter-mode",
+        choices=sorted(FILTER_MODE_KEYWORDS),
+        default="broad",
+        help=(
+            "Keyword preset to use when --keyword is not provided. 'broad' "
+            "keeps the original inclusive behavior; 'strict' uses more "
+            "topic-specific cardiology terms and avoids generic vital-sign "
+            "triggers. Defaults to broad."
         ),
     )
     return parser
@@ -94,25 +130,52 @@ def is_cardiology_related(
 ) -> bool:
     """Return True when ``record`` mentions any of ``keywords``."""
 
+    return bool(matched_terms_for_record(record, keywords))
+
+
+def matched_terms_for_record(
+    record: Mapping[str, Any],
+    keywords: Iterable[str] = CARDIOLOGY_KEYWORDS,
+) -> list[str]:
+    """Return the keywords that caused ``record`` to be selected."""
+
     text = record_text(record)
-    return any(keyword.lower() in text for keyword in keywords)
+    seen: set[str] = set()
+    matched: list[str] = []
+    for keyword in keywords:
+        normalized = keyword.lower()
+        if normalized and normalized in text and normalized not in seen:
+            matched.append(keyword)
+            seen.add(normalized)
+    return matched
 
 
 def filter_cardiology_records(
     records: Iterable[Mapping[str, Any]],
     keywords: Iterable[str] = CARDIOLOGY_KEYWORDS,
 ) -> list[dict[str, Any]]:
-    """Return only the records that look cardiology-related."""
+    """Return cardiology-related records with matched keyword evidence."""
 
     keyword_tuple = tuple(keywords)
-    return [dict(record) for record in records if is_cardiology_related(record, keyword_tuple)]
+    filtered: list[dict[str, Any]] = []
+    for record in records:
+        matched_terms = matched_terms_for_record(record, keyword_tuple)
+        if matched_terms:
+            output_record = dict(record)
+            output_record["matched_terms"] = matched_terms
+            filtered.append(output_record)
+    return filtered
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """CLI entry point. Returns a process exit code."""
 
     args = _build_parser().parse_args(argv)
-    keywords = tuple(args.keyword) if args.keyword else CARDIOLOGY_KEYWORDS
+    keywords = (
+        tuple(args.keyword)
+        if args.keyword
+        else FILTER_MODE_KEYWORDS[args.filter_mode]
+    )
 
     try:
         records = list(read_jsonl(args.input))
@@ -125,6 +188,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     print(f"Read from: {args.input}")
     print(f"Wrote to: {args.output}")
+    print(f"Filter mode: {args.filter_mode}")
     print(f"Cardiology examples: {count}")
     return 0
 

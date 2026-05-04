@@ -66,6 +66,7 @@ class RunBatchTests(unittest.TestCase):
                     {
                         "id": "case-001",
                         "question": "What causes myocardial infarction?",
+                        "matched_terms": ["myocardial infarction"],
                     },
                     {
                         "id": "case-002",
@@ -93,6 +94,8 @@ class RunBatchTests(unittest.TestCase):
             self.assertEqual(first["id"], "case-001")
             self.assertEqual(first["matched_topic"], "myocardial infarction")
             self.assertEqual(first["status"], "matched")
+            self.assertGreater(first["match_score"], 0)
+            self.assertEqual(first["matched_terms"], ["myocardial infarction"])
             self.assertEqual(first["graph_path"], str(graphs_dir / "case-001.json"))
             self.assertTrue(Path(first["graph_path"]).exists())
             self.assertEqual(
@@ -133,6 +136,7 @@ class RunBatchTests(unittest.TestCase):
             self.assertIsNone(results[0]["id"])
             self.assertEqual(Path(results[0]["graph_path"]).name, "q0000.json")
             self.assertEqual(Path(results[1]["graph_path"]).name, "q0001.json")
+            self.assertIn("match_score", results[0])
 
     def test_unmatched_record_has_null_graph_path_and_fallback_status(self) -> None:
         with TemporaryDirectory() as tmp:
@@ -161,6 +165,7 @@ class RunBatchTests(unittest.TestCase):
             self.assertEqual(results[0]["status"], "fallback")
             self.assertIsNone(results[0]["graph_path"])
             self.assertEqual(results[0]["matched_topic"], None)
+            self.assertEqual(results[0]["match_score"], 0)
             self.assertEqual(results[1]["status"], "matched")
             self.assertFalse((graphs_dir / "off-topic.json").exists())
             self.assertTrue((graphs_dir / "cardio.json").exists())
@@ -303,6 +308,8 @@ class MainTests(unittest.TestCase):
             fallback = [r for r in results if r["status"] == "fallback"]
             self.assertEqual(len(matched), 14)
             self.assertEqual(len(fallback), 2)
+            self.assertIn("match_score", results[0])
+            self.assertIn("matched_terms", results[0])
 
     def test_main_reports_missing_input(self) -> None:
         with TemporaryDirectory() as tmp:
