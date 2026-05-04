@@ -67,6 +67,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | Mermaid export | `src/graph/mermaid.py` | Convert an `OPMGraph` to a Mermaid flowchart diagram and write to `.mmd` |
 | Output formatting | `src/formatting.py` | Render answer, explanation, reasoning path, and OPM sections |
 | Batch summaries | `src/evaluation/summary.py` | Render a Markdown report from a batch QA run |
+| Baseline comparison | `src/evaluation/baseline.py`, `scripts/run_baseline_comparison.py` | Keyword-only baseline matcher and Markdown report comparing it against the OPM reasoner |
 | Tests | `tests/` | Unit and CLI behavior checks |
 
 ## Quick Start
@@ -625,6 +626,81 @@ The report is rendered by `src/evaluation/summary.py` and contains:
 The CLI behavior is unchanged when `--summary` is omitted; passing it just
 appends a single `Wrote summary report to: …` line to stdout.
 
+## Baseline Comparison
+
+`scripts/run_baseline_comparison.py` runs a deliberately weak keyword-only
+baseline alongside the OPM reasoner over the same JSONL sample and reports how
+they differ. The baseline (`src/evaluation/baseline.py`) only checks whether a
+topic's name or any of its keywords appears as a lowercase substring of the
+question — no scoring weights, no content-token overlap, no fuzzy matching. It
+returns just a topic name or a fallback; it produces **no** reasoning path,
+OPM graph, or natural-language answer.
+
+Run the comparison with:
+
+```bash
+python scripts/run_baseline_comparison.py \
+    --input data/processed/medqa_cardiology_sample.jsonl \
+    --output experiments/results/baseline_comparison.jsonl \
+    --summary experiments/results/baseline_comparison_summary.md
+```
+
+All flags default to those paths plus the bundled knowledge base, so the
+synthetic sample can be processed with just:
+
+```bash
+python scripts/run_baseline_comparison.py
+```
+
+The script always writes both the per-question JSONL **and** the Markdown
+summary, and prints a short stdout report:
+
+```text
+Read 16 records from: data/processed/medqa_cardiology_sample.jsonl
+Skipped (missing question): 0
+Baseline matched / fallback: 11 / 5
+OPM QA matched / fallback:   14 / 2
+OPM reasoning paths produced: 14
+OPM graphs produced:          14
+Wrote results to: experiments/results/baseline_comparison.jsonl
+Wrote summary report to: experiments/results/baseline_comparison_summary.md
+```
+
+Each row of the per-question JSONL has this shape:
+
+```json
+{
+  "id": "mi-001",
+  "question": "...",
+  "baseline_matched_topic": "angina",
+  "baseline_status": "matched",
+  "opm_matched_topic": "myocardial infarction",
+  "opm_status": "matched",
+  "opm_has_reasoning_path": true,
+  "opm_has_graph": true
+}
+```
+
+The Markdown summary
+([`experiments/results/baseline_comparison_summary.md`](experiments/results/baseline_comparison_summary.md))
+contains:
+
+- the input and results paths,
+- a counts table with: total input records, questions processed, skipped,
+  baseline matched / fallback, OPM matched / fallback, OPM reasoning paths
+  produced, OPM graphs produced,
+- a per-question table showing both matchers' chosen topics and whether the
+  OPM reasoner produced a reasoning path and a graph,
+- a notes section reminding the reader that "matched" only means a topic was
+  returned (not that it is clinically correct) and that the baseline can both
+  miss and pick the wrong topic.
+
+> **Important:** this is a prototype-level comparison on a small synthetic
+> sample. It makes **no** medical accuracy claims, demonstrates **no**
+> superiority on the real MedQA dataset, and the baseline is intentionally
+> weak. The numbers are useful only for prototype-level introspection, not for
+> any clinical or benchmark conclusion.
+
 ## Tests
 
 Run the test suite from the project root:
@@ -636,7 +712,7 @@ python -m unittest discover -t . -s tests
 Current local status:
 
 ```text
-Ran 135 tests
+Ran 163 tests
 OK
 ```
 
@@ -645,8 +721,10 @@ fallbacks, OPM formatting, OPM JSON export (including the `--export-graph` CLI
 flag), Mermaid diagram conversion and export (including the `--export-mermaid`
 and `--mermaid-dir` CLI flags), the batch experiment script (happy path,
 fallbacks, missing/blank questions, filename rules, error reporting, and the
-`--summary` Markdown report), CLI output, and the placeholder MedQA
-preprocessing script.
+`--summary` Markdown report), the keyword-only baseline matcher and the
+`run_baseline_comparison.py` script (per-question row shape, count
+aggregations, divergence between baseline and OPM, missing input/KB error
+reporting), CLI output, and the placeholder MedQA preprocessing script.
 
 ## Roadmap
 
