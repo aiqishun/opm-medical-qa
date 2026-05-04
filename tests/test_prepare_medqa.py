@@ -141,7 +141,7 @@ class MatchedTermsTests(unittest.TestCase):
 
         terms = prepare_medqa.high_confidence_matched_terms(record)
 
-        self.assertEqual(terms, ["murmur", "aortic stenosis"])
+        self.assertEqual(terms, ["aortic stenosis", "murmur"])
 
 
 class FilterCardiologyRecordsTests(unittest.TestCase):
@@ -294,7 +294,7 @@ class MainTests(unittest.TestCase):
             ]
             self.assertEqual(len(rows), 2)
             self.assertEqual(rows[0]["matched_terms"], ["ekg", "ventricular tachycardia"])
-            self.assertEqual(rows[1]["matched_terms"], ["murmur", "mitral regurgitation"])
+            self.assertEqual(rows[1]["matched_terms"], ["mitral regurgitation", "murmur"])
             self.assertEqual(
                 {row["filter_confidence"] for row in rows},
                 {"high_confidence"},

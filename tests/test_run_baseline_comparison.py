@@ -202,17 +202,17 @@ class MainTests(unittest.TestCase):
             stdout = buffer.getvalue()
             # Bundled processed sample has 16 cardiology records.
             self.assertIn(f"Read 16 records from: {BUNDLED_INPUT}", stdout)
-            self.assertIn("Baseline matched / fallback: 11 / 5", stdout)
-            self.assertIn("OPM QA matched / fallback:   14 / 2", stdout)
-            self.assertIn("OPM reasoning paths produced: 14", stdout)
-            self.assertIn("OPM graphs produced:          14", stdout)
+            self.assertIn("Baseline matched / fallback: 14 / 2", stdout)
+            self.assertIn("OPM QA matched / fallback:   16 / 0", stdout)
+            self.assertIn("OPM reasoning paths produced: 16", stdout)
+            self.assertIn("OPM graphs produced:          16", stdout)
 
             results = _read_jsonl(output_path)
             self.assertEqual(len(results), 16)
             self.assertTrue(summary_path.exists())
             md = summary_path.read_text(encoding="utf-8")
-            self.assertIn("| Baseline matched | 11 |", md)
-            self.assertIn("| OPM QA matched | 14 |", md)
+            self.assertIn("| Baseline matched | 14 |", md)
+            self.assertIn("| OPM QA matched | 16 |", md)
 
     def test_main_reports_missing_input(self) -> None:
         with TemporaryDirectory() as tmp:

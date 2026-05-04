@@ -106,9 +106,12 @@ returns a transparent fallback rather than fabricating an answer.
 ## Knowledge Base Design
 
 The knowledge base lives at `data/processed/cardiology_knowledge.json` and
-contains **12 topics**: myocardial infarction, hypertension, heart failure,
+contains **21 topics**: myocardial infarction, hypertension, heart failure,
 angina, arrhythmia, atherosclerosis, coronary artery disease, cardiac arrest,
-valvular heart disease, cardiomyopathy, myocarditis, and pericarditis.
+valvular heart disease, cardiomyopathy, myocarditis, pericarditis, atrial
+fibrillation, infective endocarditis, aortic stenosis, mitral regurgitation,
+mitral valve prolapse, patent ductus arteriosus, tetralogy of Fallot,
+coarctation of the aorta, and pulmonary embolism.
 
 Every topic uses the same schema. Required fields enforced by the loader
 (`src/reasoning/topic.py`) are:
@@ -311,39 +314,33 @@ that makes per-row divergence between the two matchers easy to read.
 | Total input records | 16 |
 | Questions processed | 16 |
 | Skipped (missing question) | 0 |
-| Matched | 14 |
-| Fallback | 2 |
-| Match rate | 87.5% |
-| OPM graph files generated | 14 |
+| Matched | 16 |
+| Fallback | 0 |
+| Match rate | 100.0% |
+| OPM graph files generated | 16 |
 
-The two fallbacks are the cardiology-adjacent synthetic questions about
-post-valve-replacement anticoagulation and cardiac rehabilitation. Both pass
-the preprocessing filter but were intentionally authored to fall outside the
-prototype knowledge base, so the reasoner returns its transparent fallback
-response and no OPM graph is exported.
+After the audit-driven topic expansion, every bundled synthetic cardiology row
+now receives a prototype topic match and an OPM graph. This is useful for
+exercising the pipeline end to end, but it is still only a prototype match —
+not evidence of clinical correctness.
 
 ### Baseline vs OPM on the same 16 records
 
 | Metric | Value |
 | --- | ---: |
-| Baseline matched | 11 |
-| Baseline fallback | 5 |
-| OPM QA matched | 14 |
-| OPM QA fallback | 2 |
-| OPM reasoning paths produced | 14 |
-| OPM graphs produced | 14 |
+| Baseline matched | 14 |
+| Baseline fallback | 2 |
+| OPM QA matched | 16 |
+| OPM QA fallback | 0 |
+| OPM reasoning paths produced | 16 |
+| OPM graphs produced | 16 |
 
 Three substantive interpretations from the per-question table:
 
-1. **The keyword baseline falls back on three questions where the OPM
-   reasoner matches**: `htn-002` (the question uses "elevated arterial
-   pressure", which is not a direct keyword match for any hypertension
-   keyword — the OPM reasoner picks it up via shared content tokens),
-   `valve-001` (no exact keyword like "valve stenosis" appears as a
-   contiguous substring), and `myo-001` (no "myocarditis"-family keyword
-   appears verbatim). The other two baseline fallbacks are the same
-   cardiology-adjacent questions that the OPM reasoner also falls back on,
-   which both matchers handle correctly.
+1. **The keyword baseline still falls back on questions where the OPM reasoner
+   matches**: for example, `htn-002` and `myo-001` rely on phrasing that is not
+   an exact baseline keyword hit, while the OPM reasoner can use shared
+   content tokens and OPM-style topic structure.
 2. **One known misclassification exists.** On `mi-001` ("crushing chest pain
    and atherosclerotic coronary artery blockage"), the keyword baseline
    matches `angina` because "chest pain" appears verbatim in the angina
@@ -352,7 +349,7 @@ Three substantive interpretations from the per-question table:
    is a representative example of how a keyword-only matcher can both miss
    correct topics and confidently match the wrong one when an unrelated
    keyword happens to appear.
-3. **The OPM reasoner additionally produces structured artifacts.** On all 14
+3. **The OPM reasoner additionally produces structured artifacts.** On all 16
    matched records it returns a reasoning path and emits an OPM graph; the
    baseline produces neither. The comparison is therefore not just about
    match counts — the OPM reasoner produces auditable intermediate output for

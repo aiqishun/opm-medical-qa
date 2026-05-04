@@ -440,15 +440,16 @@ bundled synthetic sample run:
 | Total input records | 16 |
 | Questions processed | 16 |
 | Skipped (missing question) | 0 |
-| Matched | 14 |
-| Fallback | 2 |
-| Match rate | 87.5% |
-| Graph files generated | 14 |
+| Matched | 16 |
+| Fallback | 0 |
+| Match rate | 100.0% |
+| Graph files generated | 16 |
 
 ## Matched topic frequency
 
 | Topic | Count |
 | --- | ---: |
+| atrial fibrillation | 2 |
 | hypertension | 2 |
 | myocardial infarction | 2 |
 | angina | 1 |
@@ -463,11 +464,11 @@ bundled synthetic sample run:
 | valvular heart disease | 1 |
 ```
 
-The two fallback rows correspond to the cardiology-adjacent synthetic
-questions about post-valve-replacement anticoagulation and cardiac
-rehabilitation — both pass the keyword preprocessing filter but intentionally
-fall outside the prototype knowledge base, so the reasoner returns its
-fallback response and no OPM graph is exported.
+After the audit-driven topic expansion, the bundled synthetic cardiology sample
+is fully covered by the prototype knowledge base. Earlier fallback examples
+about valve-related care and cardiac rehabilitation now route to broader
+research-prototype topics; this is still only a prototype match, not a clinical
+correctness claim.
 
 ## Knowledge Base
 
@@ -477,9 +478,12 @@ The current hand-built cardiology knowledge base is:
 data/processed/cardiology_knowledge.json
 ```
 
-It includes 12 prototype topics: myocardial infarction, hypertension, heart
+It includes 21 prototype topics: myocardial infarction, hypertension, heart
 failure, angina, arrhythmia, atherosclerosis, coronary artery disease, cardiac
-arrest, valvular heart disease, cardiomyopathy, myocarditis, and pericarditis.
+arrest, valvular heart disease, cardiomyopathy, myocarditis, pericarditis,
+atrial fibrillation, infective endocarditis, aortic stenosis, mitral
+regurgitation, mitral valve prolapse, patent ductus arteriosus, tetralogy of
+Fallot, coarctation of the aorta, and pulmonary embolism.
 Each topic uses the same schema (`name`, `question_patterns`, `keywords`,
 `answer`, `explanation`, `reasoning_path`, `opm_objects`, `opm_processes`,
 `opm_states`, `opm_links`) and is structured so that every OPM element
@@ -513,9 +517,8 @@ pipeline:
 | Non-cardiology controls | 3 | Endocrine, dermatology, gastroenterology — used to confirm the preprocessing filter excludes them |
 
 Running `scripts/prepare_medqa.py` on the raw file therefore yields **16**
-cardiology-related records (14 supported + 2 fallback). Running
-`scripts/run_batch_qa.py` over those 16 then produces 14 matched results, 2
-fallbacks, and 14 OPM graph JSON files.
+cardiology-related records. Running `scripts/run_batch_qa.py` over those 16
+then produces 16 prototype matches and 16 OPM graph JSON files.
 
 ### Local real-MedQA preparation
 
@@ -736,10 +739,10 @@ summary, and prints a short stdout report:
 ```text
 Read 16 records from: data/processed/medqa_cardiology_sample.jsonl
 Skipped (missing question): 0
-Baseline matched / fallback: 11 / 5
-OPM QA matched / fallback:   14 / 2
-OPM reasoning paths produced: 14
-OPM graphs produced:          14
+Baseline matched / fallback: 14 / 2
+OPM QA matched / fallback:   16 / 0
+OPM reasoning paths produced: 16
+OPM graphs produced:          16
 Wrote results to: experiments/results/baseline_comparison.jsonl
 Wrote summary report to: experiments/results/baseline_comparison_summary.md
 ```
@@ -845,7 +848,7 @@ using Python 3.11.
 Current local status:
 
 ```text
-Ran 233 tests
+Ran 243 tests
 OK
 ```
 

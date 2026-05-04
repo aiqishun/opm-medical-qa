@@ -82,6 +82,26 @@ class LoadTopicsTests(unittest.TestCase):
         self.assertGreater(len(topics), 0)
         self.assertTrue(any(topic.name == "myocardial infarction" for topic in topics))
 
+    def test_new_audit_driven_topics_include_topic_alias(self) -> None:
+        kb = Path(__file__).resolve().parents[1] / "data" / "processed" / "cardiology_knowledge.json"
+        data = json.loads(kb.read_text(encoding="utf-8"))
+        expected = {
+            "atrial fibrillation",
+            "infective endocarditis",
+            "aortic stenosis",
+            "mitral regurgitation",
+            "mitral valve prolapse",
+            "patent ductus arteriosus",
+            "tetralogy of Fallot",
+            "coarctation of the aorta",
+            "pulmonary embolism",
+        }
+        by_name = {topic["name"]: topic for topic in data["topics"]}
+
+        self.assertTrue(expected.issubset(by_name))
+        for name in expected:
+            self.assertEqual(by_name[name]["topic"], name)
+
 
 if __name__ == "__main__":
     unittest.main()

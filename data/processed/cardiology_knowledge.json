@@ -1051,6 +1051,740 @@
           "target": "Pericarditis"
         }
       ]
+    },
+    {
+      "id": "atrial_fibrillation",
+      "name": "atrial fibrillation",
+      "topic": "atrial fibrillation",
+      "question_patterns": [
+        "What causes atrial fibrillation?",
+        "Why are P waves absent in atrial fibrillation?",
+        "What causes an irregularly irregular rhythm?",
+        "What does ECG evidence of atrial fibrillation indicate?"
+      ],
+      "keywords": [
+        "atrial fibrillation",
+        "afib",
+        "af",
+        "irregularly irregular rhythm",
+        "absent p waves",
+        "fibrillatory waves",
+        "atrial enlargement",
+        "rapid ventricular response"
+      ],
+      "answer": "Atrial fibrillation is an arrhythmia in which disorganized atrial electrical activity produces ineffective atrial contraction and an irregularly irregular ventricular rhythm.",
+      "explanation": "In this simplified topic, atrial enlargement or electrical irritability creates multiple atrial reentry wavelets. The atria fibrillate instead of contracting effectively, P waves may be absent on ECG, and ventricular response becomes irregular.",
+      "reasoning_path": [
+        "Atrial electrical instability",
+        "Disorganized atrial activation",
+        "Absent P waves and irregular rhythm",
+        "Atrial fibrillation"
+      ],
+      "opm_objects": [
+        "Atria",
+        "AV node",
+        "Electrical conduction system"
+      ],
+      "opm_processes": [
+        "Atrial reentry",
+        "Disorganized electrical activation",
+        "Irregular impulse conduction"
+      ],
+      "opm_states": [
+        "Absent P waves",
+        "Irregularly irregular rhythm",
+        "Ineffective atrial contraction"
+      ],
+      "opm_links": [
+        {
+          "source": "Atria",
+          "relationship": "object participates in process",
+          "target": "Atrial reentry"
+        },
+        {
+          "source": "Electrical conduction system",
+          "relationship": "object participates in process",
+          "target": "Disorganized electrical activation"
+        },
+        {
+          "source": "AV node",
+          "relationship": "object participates in process",
+          "target": "Irregular impulse conduction"
+        },
+        {
+          "source": "Disorganized electrical activation",
+          "relationship": "process changes state",
+          "target": "Absent P waves"
+        },
+        {
+          "source": "Irregular impulse conduction",
+          "relationship": "process changes state",
+          "target": "Irregularly irregular rhythm"
+        },
+        {
+          "source": "Atrial reentry",
+          "relationship": "process changes state",
+          "target": "Ineffective atrial contraction"
+        },
+        {
+          "source": "Irregularly irregular rhythm",
+          "relationship": "state contributes to outcome",
+          "target": "Atrial fibrillation"
+        }
+      ]
+    },
+    {
+      "id": "infective_endocarditis",
+      "name": "infective endocarditis",
+      "topic": "infective endocarditis",
+      "question_patterns": [
+        "What causes infective endocarditis?",
+        "Why do vegetations form on heart valves?",
+        "What causes fever and a new murmur after bacteremia?",
+        "What does endocarditis on a valve mean?"
+      ],
+      "keywords": [
+        "infective endocarditis",
+        "endocarditis",
+        "valve vegetation",
+        "vegetations",
+        "bacteremia",
+        "new murmur",
+        "janeway lesions",
+        "osler nodes",
+        "positive blood cultures"
+      ],
+      "answer": "Infective endocarditis occurs when microbes seed the endocardium or heart valves and form infected vegetations that can damage valves and embolize.",
+      "explanation": "In this simplified topic, bacteremia allows organisms to adhere to damaged endocardium or valve surfaces. Platelet-fibrin deposition and microbial growth produce vegetations, which can cause fever, a murmur, valve dysfunction, or embolic findings.",
+      "reasoning_path": [
+        "Bacteremia",
+        "Microbial adhesion to valve surface",
+        "Vegetation formation",
+        "Infective endocarditis"
+      ],
+      "opm_objects": [
+        "Heart valve",
+        "Endocardium",
+        "Microorganisms"
+      ],
+      "opm_processes": [
+        "Microbial adhesion",
+        "Platelet-fibrin deposition",
+        "Vegetation formation"
+      ],
+      "opm_states": [
+        "Infected valve surface",
+        "Valve vegetation",
+        "Valve dysfunction"
+      ],
+      "opm_links": [
+        {
+          "source": "Microorganisms",
+          "relationship": "object participates in process",
+          "target": "Microbial adhesion"
+        },
+        {
+          "source": "Heart valve",
+          "relationship": "object participates in process",
+          "target": "Vegetation formation"
+        },
+        {
+          "source": "Endocardium",
+          "relationship": "object participates in process",
+          "target": "Platelet-fibrin deposition"
+        },
+        {
+          "source": "Microbial adhesion",
+          "relationship": "process changes state",
+          "target": "Infected valve surface"
+        },
+        {
+          "source": "Vegetation formation",
+          "relationship": "process changes state",
+          "target": "Valve vegetation"
+        },
+        {
+          "source": "Platelet-fibrin deposition",
+          "relationship": "process changes state",
+          "target": "Valve dysfunction"
+        },
+        {
+          "source": "Valve vegetation",
+          "relationship": "state contributes to outcome",
+          "target": "Infective endocarditis"
+        }
+      ]
+    },
+    {
+      "id": "aortic_stenosis",
+      "name": "aortic stenosis",
+      "topic": "aortic stenosis",
+      "question_patterns": [
+        "What causes aortic stenosis?",
+        "What does a harsh systolic murmur radiating to the carotids suggest?",
+        "Why does a narrowed aortic valve cause syncope?",
+        "What valve lesion causes crescendo-decrescendo murmur?"
+      ],
+      "keywords": [
+        "aortic stenosis",
+        "aortic valve stenosis",
+        "crescendo decrescendo murmur",
+        "systolic ejection murmur",
+        "radiates to carotids",
+        "narrowed aortic valve",
+        "calcific aortic valve",
+        "bicuspid aortic valve"
+      ],
+      "answer": "Aortic stenosis is narrowing of the aortic valve that obstructs left ventricular outflow and can produce a systolic ejection murmur.",
+      "explanation": "In this simplified topic, valve calcification or congenital bicuspid valve anatomy narrows the aortic valve opening. Outflow obstruction increases left ventricular pressure load and can produce exertional symptoms and a characteristic murmur.",
+      "reasoning_path": [
+        "Aortic valve calcification or bicuspid valve",
+        "Aortic valve narrowing",
+        "Left ventricular outflow obstruction",
+        "Aortic stenosis"
+      ],
+      "opm_objects": [
+        "Aortic valve",
+        "Left ventricle",
+        "Aortic outflow tract"
+      ],
+      "opm_processes": [
+        "Valve calcification",
+        "Valve opening restriction",
+        "Outflow obstruction"
+      ],
+      "opm_states": [
+        "Narrowed aortic valve",
+        "Pressure overload",
+        "Systolic ejection murmur"
+      ],
+      "opm_links": [
+        {
+          "source": "Aortic valve",
+          "relationship": "object participates in process",
+          "target": "Valve calcification"
+        },
+        {
+          "source": "Aortic valve",
+          "relationship": "object participates in process",
+          "target": "Valve opening restriction"
+        },
+        {
+          "source": "Left ventricle",
+          "relationship": "object participates in process",
+          "target": "Outflow obstruction"
+        },
+        {
+          "source": "Valve opening restriction",
+          "relationship": "process changes state",
+          "target": "Narrowed aortic valve"
+        },
+        {
+          "source": "Outflow obstruction",
+          "relationship": "process changes state",
+          "target": "Pressure overload"
+        },
+        {
+          "source": "Valve calcification",
+          "relationship": "process changes state",
+          "target": "Systolic ejection murmur"
+        },
+        {
+          "source": "Narrowed aortic valve",
+          "relationship": "state contributes to outcome",
+          "target": "Aortic stenosis"
+        }
+      ]
+    },
+    {
+      "id": "mitral_regurgitation",
+      "name": "mitral regurgitation",
+      "topic": "mitral regurgitation",
+      "question_patterns": [
+        "What causes mitral regurgitation?",
+        "What does a holosystolic murmur at the apex suggest?",
+        "Why does mitral valve leakage cause left atrial volume overload?",
+        "What valve disease causes blood to flow back into the left atrium?"
+      ],
+      "keywords": [
+        "mitral regurgitation",
+        "mitral insufficiency",
+        "holosystolic murmur",
+        "pansystolic murmur",
+        "apical systolic murmur",
+        "left atrial volume overload",
+        "mitral valve leakage",
+        "backflow into left atrium"
+      ],
+      "answer": "Mitral regurgitation occurs when the mitral valve does not close completely, allowing blood to leak from the left ventricle into the left atrium during systole.",
+      "explanation": "In this simplified topic, leaflet, chordal, papillary muscle, or annular dysfunction prevents complete mitral valve closure. Systolic backflow creates volume overload and a characteristic holosystolic murmur.",
+      "reasoning_path": [
+        "Mitral valve closure failure",
+        "Systolic backflow into left atrium",
+        "Left atrial volume overload",
+        "Mitral regurgitation"
+      ],
+      "opm_objects": [
+        "Mitral valve",
+        "Left ventricle",
+        "Left atrium"
+      ],
+      "opm_processes": [
+        "Leaflet malcoaptation",
+        "Systolic backflow",
+        "Volume overload"
+      ],
+      "opm_states": [
+        "Leaky mitral valve",
+        "Dilated left atrium",
+        "Holosystolic murmur"
+      ],
+      "opm_links": [
+        {
+          "source": "Mitral valve",
+          "relationship": "object participates in process",
+          "target": "Leaflet malcoaptation"
+        },
+        {
+          "source": "Left ventricle",
+          "relationship": "object participates in process",
+          "target": "Systolic backflow"
+        },
+        {
+          "source": "Left atrium",
+          "relationship": "object participates in process",
+          "target": "Volume overload"
+        },
+        {
+          "source": "Leaflet malcoaptation",
+          "relationship": "process changes state",
+          "target": "Leaky mitral valve"
+        },
+        {
+          "source": "Systolic backflow",
+          "relationship": "process changes state",
+          "target": "Holosystolic murmur"
+        },
+        {
+          "source": "Volume overload",
+          "relationship": "process changes state",
+          "target": "Dilated left atrium"
+        },
+        {
+          "source": "Leaky mitral valve",
+          "relationship": "state contributes to outcome",
+          "target": "Mitral regurgitation"
+        }
+      ]
+    },
+    {
+      "id": "mitral_valve_prolapse",
+      "name": "mitral valve prolapse",
+      "topic": "mitral valve prolapse",
+      "question_patterns": [
+        "What causes mitral valve prolapse?",
+        "What does a midsystolic click suggest?",
+        "Why does a redundant mitral leaflet prolapse into the left atrium?",
+        "What valve condition causes a click followed by late systolic murmur?"
+      ],
+      "keywords": [
+        "mitral valve prolapse",
+        "mvp",
+        "midsystolic click",
+        "mid systolic click",
+        "late systolic murmur",
+        "redundant mitral leaflet",
+        "myxomatous degeneration",
+        "prolapse into left atrium"
+      ],
+      "answer": "Mitral valve prolapse occurs when redundant or myxomatous mitral valve leaflets bulge into the left atrium during systole, sometimes causing mitral regurgitation.",
+      "explanation": "In this simplified topic, myxomatous leaflet change and chordal redundancy allow the mitral leaflet to bow backward during systole. This can produce a midsystolic click and sometimes a late systolic murmur if regurgitation occurs.",
+      "reasoning_path": [
+        "Myxomatous leaflet change",
+        "Mitral leaflet prolapse",
+        "Midsystolic click or late systolic murmur",
+        "Mitral valve prolapse"
+      ],
+      "opm_objects": [
+        "Mitral valve leaflet",
+        "Chordae tendineae",
+        "Left atrium"
+      ],
+      "opm_processes": [
+        "Myxomatous degeneration",
+        "Leaflet billowing",
+        "Valve closure displacement"
+      ],
+      "opm_states": [
+        "Redundant leaflet",
+        "Midsystolic click",
+        "Late systolic murmur"
+      ],
+      "opm_links": [
+        {
+          "source": "Mitral valve leaflet",
+          "relationship": "object participates in process",
+          "target": "Myxomatous degeneration"
+        },
+        {
+          "source": "Chordae tendineae",
+          "relationship": "object participates in process",
+          "target": "Leaflet billowing"
+        },
+        {
+          "source": "Left atrium",
+          "relationship": "object participates in process",
+          "target": "Valve closure displacement"
+        },
+        {
+          "source": "Myxomatous degeneration",
+          "relationship": "process changes state",
+          "target": "Redundant leaflet"
+        },
+        {
+          "source": "Leaflet billowing",
+          "relationship": "process changes state",
+          "target": "Midsystolic click"
+        },
+        {
+          "source": "Valve closure displacement",
+          "relationship": "process changes state",
+          "target": "Late systolic murmur"
+        },
+        {
+          "source": "Redundant leaflet",
+          "relationship": "state contributes to outcome",
+          "target": "Mitral valve prolapse"
+        }
+      ]
+    },
+    {
+      "id": "patent_ductus_arteriosus",
+      "name": "patent ductus arteriosus",
+      "topic": "patent ductus arteriosus",
+      "question_patterns": [
+        "What causes patent ductus arteriosus?",
+        "What does a continuous machine-like murmur suggest?",
+        "Why does PDA cause left-to-right shunting?",
+        "What congenital lesion leaves the ductus arteriosus open?"
+      ],
+      "keywords": [
+        "patent ductus arteriosus",
+        "pda",
+        "ductus arteriosus remains open",
+        "continuous machine like murmur",
+        "machinery murmur",
+        "left to right shunt",
+        "bounding pulses",
+        "premature infant ductus"
+      ],
+      "answer": "Patent ductus arteriosus is persistence of the fetal ductus arteriosus, allowing abnormal blood flow between the aorta and pulmonary artery after birth.",
+      "explanation": "In this simplified topic, failure of ductus arteriosus closure leaves a connection between systemic and pulmonary circulation. A left-to-right shunt increases pulmonary blood flow and can create a continuous machine-like murmur.",
+      "reasoning_path": [
+        "Failure of ductus arteriosus closure",
+        "Aorta-to-pulmonary artery shunt",
+        "Increased pulmonary blood flow",
+        "Patent ductus arteriosus"
+      ],
+      "opm_objects": [
+        "Ductus arteriosus",
+        "Aorta",
+        "Pulmonary artery"
+      ],
+      "opm_processes": [
+        "Ductal closure failure",
+        "Left-to-right shunting",
+        "Pulmonary overcirculation"
+      ],
+      "opm_states": [
+        "Persistent ductal connection",
+        "Continuous murmur",
+        "Increased pulmonary flow"
+      ],
+      "opm_links": [
+        {
+          "source": "Ductus arteriosus",
+          "relationship": "object participates in process",
+          "target": "Ductal closure failure"
+        },
+        {
+          "source": "Aorta",
+          "relationship": "object participates in process",
+          "target": "Left-to-right shunting"
+        },
+        {
+          "source": "Pulmonary artery",
+          "relationship": "object participates in process",
+          "target": "Pulmonary overcirculation"
+        },
+        {
+          "source": "Ductal closure failure",
+          "relationship": "process changes state",
+          "target": "Persistent ductal connection"
+        },
+        {
+          "source": "Left-to-right shunting",
+          "relationship": "process changes state",
+          "target": "Continuous murmur"
+        },
+        {
+          "source": "Pulmonary overcirculation",
+          "relationship": "process changes state",
+          "target": "Increased pulmonary flow"
+        },
+        {
+          "source": "Persistent ductal connection",
+          "relationship": "state contributes to outcome",
+          "target": "Patent ductus arteriosus"
+        }
+      ]
+    },
+    {
+      "id": "tetralogy_of_fallot",
+      "name": "tetralogy of Fallot",
+      "topic": "tetralogy of Fallot",
+      "question_patterns": [
+        "What causes tetralogy of Fallot?",
+        "What congenital heart disease causes cyanotic spells?",
+        "Why does right ventricular outflow obstruction cause cyanosis in TOF?",
+        "What condition has VSD, overriding aorta, pulmonary stenosis, and right ventricular hypertrophy?"
+      ],
+      "keywords": [
+        "tetralogy of fallot",
+        "tof",
+        "cyanotic congenital heart disease",
+        "tet spells",
+        "boot shaped heart",
+        "overriding aorta",
+        "right ventricular outflow obstruction",
+        "pulmonary stenosis",
+        "ventricular septal defect",
+        "vsd"
+      ],
+      "answer": "Tetralogy of Fallot is a cyanotic congenital heart condition involving right ventricular outflow obstruction, ventricular septal defect, overriding aorta, and right ventricular hypertrophy.",
+      "explanation": "In this simplified topic, malalignment of the outflow tract produces pulmonary outflow obstruction and a VSD. Deoxygenated blood can shunt right-to-left, producing cyanosis and classic TOF findings.",
+      "reasoning_path": [
+        "Outflow tract malalignment",
+        "Right ventricular outflow obstruction with VSD",
+        "Right-to-left shunting and cyanosis",
+        "Tetralogy of Fallot"
+      ],
+      "opm_objects": [
+        "Right ventricle",
+        "Pulmonary outflow tract",
+        "Ventricular septum"
+      ],
+      "opm_processes": [
+        "Outflow tract malalignment",
+        "Right-to-left shunting",
+        "Reduced pulmonary blood flow"
+      ],
+      "opm_states": [
+        "Pulmonary stenosis",
+        "Ventricular septal defect",
+        "Cyanosis"
+      ],
+      "opm_links": [
+        {
+          "source": "Pulmonary outflow tract",
+          "relationship": "object participates in process",
+          "target": "Outflow tract malalignment"
+        },
+        {
+          "source": "Ventricular septum",
+          "relationship": "object participates in process",
+          "target": "Right-to-left shunting"
+        },
+        {
+          "source": "Right ventricle",
+          "relationship": "object participates in process",
+          "target": "Reduced pulmonary blood flow"
+        },
+        {
+          "source": "Outflow tract malalignment",
+          "relationship": "process changes state",
+          "target": "Pulmonary stenosis"
+        },
+        {
+          "source": "Right-to-left shunting",
+          "relationship": "process changes state",
+          "target": "Cyanosis"
+        },
+        {
+          "source": "Reduced pulmonary blood flow",
+          "relationship": "process changes state",
+          "target": "Ventricular septal defect"
+        },
+        {
+          "source": "Cyanosis",
+          "relationship": "state contributes to outcome",
+          "target": "Tetralogy of Fallot"
+        }
+      ]
+    },
+    {
+      "id": "coarctation_of_the_aorta",
+      "name": "coarctation of the aorta",
+      "topic": "coarctation of the aorta",
+      "question_patterns": [
+        "What causes coarctation of the aorta?",
+        "Why does coarctation cause upper extremity hypertension?",
+        "What congenital lesion causes weak femoral pulses?",
+        "What causes rib notching with arm-leg blood pressure difference?"
+      ],
+      "keywords": [
+        "coarctation of the aorta",
+        "aortic coarctation",
+        "upper extremity hypertension",
+        "weak femoral pulses",
+        "radio femoral delay",
+        "rib notching",
+        "arm leg blood pressure difference",
+        "narrowing of the aorta"
+      ],
+      "answer": "Coarctation of the aorta is congenital narrowing of the aorta that obstructs flow to the lower body and can cause upper-extremity hypertension with weak lower-extremity pulses.",
+      "explanation": "In this simplified topic, a narrowed aortic segment increases resistance proximal to the narrowing and reduces distal perfusion. This can produce arm-leg blood pressure differences, weak femoral pulses, and collateral vessel changes.",
+      "reasoning_path": [
+        "Congenital aortic narrowing",
+        "Obstructed distal aortic flow",
+        "Upper-lower extremity pressure gradient",
+        "Coarctation of the aorta"
+      ],
+      "opm_objects": [
+        "Aorta",
+        "Upper extremity arteries",
+        "Femoral arteries"
+      ],
+      "opm_processes": [
+        "Aortic narrowing",
+        "Flow obstruction",
+        "Collateral vessel formation"
+      ],
+      "opm_states": [
+        "Upper extremity hypertension",
+        "Weak femoral pulses",
+        "Rib notching"
+      ],
+      "opm_links": [
+        {
+          "source": "Aorta",
+          "relationship": "object participates in process",
+          "target": "Aortic narrowing"
+        },
+        {
+          "source": "Femoral arteries",
+          "relationship": "object participates in process",
+          "target": "Flow obstruction"
+        },
+        {
+          "source": "Upper extremity arteries",
+          "relationship": "object participates in process",
+          "target": "Collateral vessel formation"
+        },
+        {
+          "source": "Aortic narrowing",
+          "relationship": "process changes state",
+          "target": "Upper extremity hypertension"
+        },
+        {
+          "source": "Flow obstruction",
+          "relationship": "process changes state",
+          "target": "Weak femoral pulses"
+        },
+        {
+          "source": "Collateral vessel formation",
+          "relationship": "process changes state",
+          "target": "Rib notching"
+        },
+        {
+          "source": "Upper extremity hypertension",
+          "relationship": "state contributes to outcome",
+          "target": "Coarctation of the aorta"
+        }
+      ]
+    },
+    {
+      "id": "pulmonary_embolism",
+      "name": "pulmonary embolism",
+      "topic": "pulmonary embolism",
+      "question_patterns": [
+        "What causes pulmonary embolism?",
+        "Why does a deep vein thrombosis cause sudden dyspnea?",
+        "What causes acute pleuritic chest pain with hypoxemia?",
+        "What happens when an embolus blocks pulmonary arteries?"
+      ],
+      "keywords": [
+        "pulmonary embolism",
+        "pulmonary embolus",
+        "pe",
+        "deep vein thrombosis",
+        "dvt",
+        "pleuritic chest pain",
+        "sudden dyspnea",
+        "hypoxemia",
+        "pulmonary artery obstruction",
+        "right heart strain"
+      ],
+      "answer": "Pulmonary embolism occurs when thrombotic material, often from a deep vein thrombosis, travels to the pulmonary arteries and obstructs pulmonary blood flow.",
+      "explanation": "In this simplified topic, a venous thrombus embolizes to the pulmonary circulation. Pulmonary artery obstruction increases dead-space ventilation, can lower oxygenation, and may strain the right ventricle.",
+      "reasoning_path": [
+        "Venous thrombus formation",
+        "Embolization to pulmonary artery",
+        "Pulmonary blood flow obstruction",
+        "Pulmonary embolism"
+      ],
+      "opm_objects": [
+        "Venous thrombus",
+        "Pulmonary artery",
+        "Right ventricle"
+      ],
+      "opm_processes": [
+        "Thrombus embolization",
+        "Pulmonary artery obstruction",
+        "Ventilation-perfusion mismatch"
+      ],
+      "opm_states": [
+        "Reduced pulmonary perfusion",
+        "Hypoxemia",
+        "Right heart strain"
+      ],
+      "opm_links": [
+        {
+          "source": "Venous thrombus",
+          "relationship": "object participates in process",
+          "target": "Thrombus embolization"
+        },
+        {
+          "source": "Pulmonary artery",
+          "relationship": "object participates in process",
+          "target": "Pulmonary artery obstruction"
+        },
+        {
+          "source": "Right ventricle",
+          "relationship": "object participates in process",
+          "target": "Ventilation-perfusion mismatch"
+        },
+        {
+          "source": "Thrombus embolization",
+          "relationship": "process changes state",
+          "target": "Reduced pulmonary perfusion"
+        },
+        {
+          "source": "Pulmonary artery obstruction",
+          "relationship": "process changes state",
+          "target": "Right heart strain"
+        },
+        {
+          "source": "Ventilation-perfusion mismatch",
+          "relationship": "process changes state",
+          "target": "Hypoxemia"
+        },
+        {
+          "source": "Reduced pulmonary perfusion",
+          "relationship": "state contributes to outcome",
+          "target": "Pulmonary embolism"
+        }
+      ]
     }
   ]
 }

@@ -71,6 +71,19 @@ HIGH_CONFIDENCE_DISEASE_TERMS: tuple[str, ...] = (
     "cardiomyopathy",
     "atrial fibrillation",
     "cardiac arrest",
+    "aortic stenosis",
+    "mitral regurgitation",
+    "mitral valve prolapse",
+    "mitral prolapse",
+    "patent ductus arteriosus",
+    "pda",
+    "tetralogy of fallot",
+    "tof",
+    "coarctation of the aorta",
+    "aortic coarctation",
+    "coarctation",
+    "pulmonary embolism",
+    "pulmonary embolus",
 )
 
 HIGH_CONFIDENCE_ECG_TERMS: tuple[str, ...] = ("ecg", "ekg")
