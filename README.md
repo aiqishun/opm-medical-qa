@@ -1,5 +1,7 @@
 # OPM Medical QA
 
+[![Tests](https://github.com/aiqishun/opm-medical-qa/actions/workflows/tests.yml/badge.svg)](https://github.com/aiqishun/opm-medical-qa/actions/workflows/tests.yml)
+
 **Explainable, OPM-style cardiology question answering for research prototyping.**
 
 `opm-medical-qa` is a small Python research prototype for exploring how
