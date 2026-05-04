@@ -45,9 +45,19 @@
           "target": "Plaque build-up"
         },
         {
+          "source": "Atherosclerotic plaque",
+          "relationship": "object participates in process",
+          "target": "Plaque build-up"
+        },
+        {
           "source": "Plaque build-up",
           "relationship": "process changes state",
           "target": "Narrowed artery"
+        },
+        {
+          "source": "Coronary artery",
+          "relationship": "object participates in process",
+          "target": "Artery blockage"
         },
         {
           "source": "Artery blockage",
@@ -55,8 +65,28 @@
           "target": "Low oxygen supply"
         },
         {
+          "source": "Heart muscle",
+          "relationship": "object participates in process",
+          "target": "Blood flow reduction"
+        },
+        {
           "source": "Blood flow reduction",
-          "relationship": "process leads to disease outcome",
+          "relationship": "process changes state",
+          "target": "Injured myocardium"
+        },
+        {
+          "source": "Narrowed artery",
+          "relationship": "state contributes to outcome",
+          "target": "Myocardial infarction"
+        },
+        {
+          "source": "Low oxygen supply",
+          "relationship": "state contributes to outcome",
+          "target": "Myocardial infarction"
+        },
+        {
+          "source": "Injured myocardium",
+          "relationship": "state contributes to outcome",
           "target": "Myocardial infarction"
         }
       ]
@@ -106,18 +136,43 @@
           "target": "Vascular constriction"
         },
         {
+          "source": "Artery",
+          "relationship": "object participates in process",
+          "target": "Vascular constriction"
+        },
+        {
+          "source": "Blood volume",
+          "relationship": "object participates in process",
+          "target": "Fluid retention"
+        },
+        {
           "source": "Vascular constriction",
           "relationship": "process changes state",
-          "target": "Increased resistance"
+          "target": "Stiffened vessel"
         },
         {
           "source": "Fluid retention",
           "relationship": "process changes state",
-          "target": "Elevated arterial pressure"
+          "target": "Increased resistance"
         },
         {
           "source": "Pressure elevation",
-          "relationship": "process leads to disease outcome",
+          "relationship": "process changes state",
+          "target": "Elevated arterial pressure"
+        },
+        {
+          "source": "Stiffened vessel",
+          "relationship": "state contributes to outcome",
+          "target": "Hypertension"
+        },
+        {
+          "source": "Increased resistance",
+          "relationship": "state contributes to outcome",
+          "target": "Hypertension"
+        },
+        {
+          "source": "Elevated arterial pressure",
+          "relationship": "state contributes to outcome",
           "target": "Hypertension"
         }
       ]
@@ -167,6 +222,16 @@
           "target": "Muscle weakening"
         },
         {
+          "source": "Ventricle",
+          "relationship": "object participates in process",
+          "target": "Pump function reduction"
+        },
+        {
+          "source": "Circulating blood",
+          "relationship": "object participates in process",
+          "target": "Blood output reduction"
+        },
+        {
           "source": "Muscle weakening",
           "relationship": "process changes state",
           "target": "Weak contraction"
@@ -178,7 +243,22 @@
         },
         {
           "source": "Blood output reduction",
-          "relationship": "process leads to disease outcome",
+          "relationship": "process changes state",
+          "target": "Congestion risk"
+        },
+        {
+          "source": "Weak contraction",
+          "relationship": "state contributes to outcome",
+          "target": "Heart failure"
+        },
+        {
+          "source": "Low cardiac output",
+          "relationship": "state contributes to outcome",
+          "target": "Heart failure"
+        },
+        {
+          "source": "Congestion risk",
+          "relationship": "state contributes to outcome",
           "target": "Heart failure"
         }
       ]
@@ -199,11 +279,11 @@
         "myocardial oxygen"
       ],
       "answer": "Angina is commonly caused by reduced oxygen supply to heart muscle, often due to narrowed coronary arteries.",
-      "explanation": "In this rule-based example, coronary artery narrowing limits blood flow during increased demand. The resulting oxygen mismatch in the heart muscle can produce chest pain known as angina.",
+      "explanation": "In this rule-based example, coronary artery narrowing limits blood flow during increased demand. The resulting oxygen mismatch in the heart muscle produces ischemia, which manifests as chest discomfort known as angina.",
       "reasoning_path": [
         "Coronary artery narrowing",
         "Reduced myocardial oxygen supply",
-        "Chest pain",
+        "Ischemic myocardium",
         "Angina"
       ],
       "opm_objects": [
@@ -228,6 +308,16 @@
           "target": "Artery narrowing"
         },
         {
+          "source": "Oxygen",
+          "relationship": "object participates in process",
+          "target": "Oxygen delivery reduction"
+        },
+        {
+          "source": "Heart muscle",
+          "relationship": "object participates in process",
+          "target": "Pain signal generation"
+        },
+        {
           "source": "Artery narrowing",
           "relationship": "process changes state",
           "target": "Oxygen mismatch"
@@ -239,7 +329,22 @@
         },
         {
           "source": "Pain signal generation",
-          "relationship": "process leads to disease outcome",
+          "relationship": "process changes state",
+          "target": "Chest discomfort"
+        },
+        {
+          "source": "Oxygen mismatch",
+          "relationship": "state contributes to outcome",
+          "target": "Angina"
+        },
+        {
+          "source": "Ischemic myocardium",
+          "relationship": "state contributes to outcome",
+          "target": "Angina"
+        },
+        {
+          "source": "Chest discomfort",
+          "relationship": "state contributes to outcome",
           "target": "Angina"
         }
       ]
@@ -264,7 +369,7 @@
       "reasoning_path": [
         "Abnormal electrical focus",
         "Disrupted conduction",
-        "Irregular heartbeat",
+        "Uncoordinated contraction",
         "Arrhythmia"
       ],
       "opm_objects": [
@@ -289,6 +394,16 @@
           "target": "Signal generation"
         },
         {
+          "source": "Electrical conduction system",
+          "relationship": "object participates in process",
+          "target": "Conduction disruption"
+        },
+        {
+          "source": "Heart chambers",
+          "relationship": "object participates in process",
+          "target": "Rhythm disturbance"
+        },
+        {
           "source": "Signal generation",
           "relationship": "process changes state",
           "target": "Abnormal impulse"
@@ -300,7 +415,22 @@
         },
         {
           "source": "Rhythm disturbance",
-          "relationship": "process leads to disease outcome",
+          "relationship": "process changes state",
+          "target": "Uncoordinated contraction"
+        },
+        {
+          "source": "Abnormal impulse",
+          "relationship": "state contributes to outcome",
+          "target": "Arrhythmia"
+        },
+        {
+          "source": "Irregular rhythm",
+          "relationship": "state contributes to outcome",
+          "target": "Arrhythmia"
+        },
+        {
+          "source": "Uncoordinated contraction",
+          "relationship": "state contributes to outcome",
           "target": "Arrhythmia"
         }
       ]
@@ -355,13 +485,38 @@
           "target": "Lipid accumulation"
         },
         {
+          "source": "Inflammatory cells",
+          "relationship": "object participates in process",
+          "target": "Plaque formation"
+        },
+        {
+          "source": "Endothelial injury",
+          "relationship": "process changes state",
+          "target": "Inflamed vessel wall"
+        },
+        {
           "source": "Lipid accumulation",
           "relationship": "process changes state",
           "target": "Plaque-containing artery"
         },
         {
           "source": "Plaque formation",
-          "relationship": "process leads to disease outcome",
+          "relationship": "process changes state",
+          "target": "Narrowed artery"
+        },
+        {
+          "source": "Inflamed vessel wall",
+          "relationship": "state contributes to outcome",
+          "target": "Atherosclerosis"
+        },
+        {
+          "source": "Plaque-containing artery",
+          "relationship": "state contributes to outcome",
+          "target": "Atherosclerosis"
+        },
+        {
+          "source": "Narrowed artery",
+          "relationship": "state contributes to outcome",
           "target": "Atherosclerosis"
         }
       ]
@@ -411,18 +566,43 @@
           "target": "Plaque growth"
         },
         {
+          "source": "Coronary artery",
+          "relationship": "object participates in process",
+          "target": "Artery narrowing"
+        },
+        {
+          "source": "Heart muscle",
+          "relationship": "object participates in process",
+          "target": "Blood flow limitation"
+        },
+        {
           "source": "Plaque growth",
           "relationship": "process changes state",
           "target": "Narrowed coronary artery"
         },
         {
-          "source": "Blood flow limitation",
+          "source": "Artery narrowing",
           "relationship": "process changes state",
           "target": "Reduced perfusion"
         },
         {
-          "source": "Artery narrowing",
-          "relationship": "process leads to disease outcome",
+          "source": "Blood flow limitation",
+          "relationship": "process changes state",
+          "target": "Myocardial ischemia risk"
+        },
+        {
+          "source": "Narrowed coronary artery",
+          "relationship": "state contributes to outcome",
+          "target": "Coronary artery disease"
+        },
+        {
+          "source": "Reduced perfusion",
+          "relationship": "state contributes to outcome",
+          "target": "Coronary artery disease"
+        },
+        {
+          "source": "Myocardial ischemia risk",
+          "relationship": "state contributes to outcome",
           "target": "Coronary artery disease"
         }
       ]
@@ -472,6 +652,16 @@
           "target": "Rhythm destabilization"
         },
         {
+          "source": "Ventricles",
+          "relationship": "object participates in process",
+          "target": "Pump failure"
+        },
+        {
+          "source": "Circulation",
+          "relationship": "object participates in process",
+          "target": "Circulation collapse"
+        },
+        {
           "source": "Rhythm destabilization",
           "relationship": "process changes state",
           "target": "Chaotic rhythm"
@@ -483,7 +673,22 @@
         },
         {
           "source": "Circulation collapse",
-          "relationship": "process leads to disease outcome",
+          "relationship": "process changes state",
+          "target": "No circulation"
+        },
+        {
+          "source": "Chaotic rhythm",
+          "relationship": "state contributes to outcome",
+          "target": "Cardiac arrest"
+        },
+        {
+          "source": "Absent effective pulse",
+          "relationship": "state contributes to outcome",
+          "target": "Cardiac arrest"
+        },
+        {
+          "source": "No circulation",
+          "relationship": "state contributes to outcome",
           "target": "Cardiac arrest"
         }
       ]
@@ -504,7 +709,7 @@
         "damaged valve"
       ],
       "answer": "Valvular heart disease can occur when heart valves become narrowed, leaky, or damaged, disrupting normal blood flow through the heart.",
-      "explanation": "In this simplified model, valve damage or degeneration changes valve structure. A narrowed valve obstructs forward flow, while a leaky valve allows backward flow. Either process can increase cardiac workload.",
+      "explanation": "In this simplified model, valve damage or degeneration changes valve structure. A narrowed valve obstructs forward flow, while a leaky valve allows backward flow. Either pattern can increase cardiac workload over time.",
       "reasoning_path": [
         "Valve damage",
         "Abnormal valve opening or closure",
@@ -533,18 +738,53 @@
           "target": "Valve degeneration"
         },
         {
-          "source": "Flow obstruction",
+          "source": "Valve leaflets",
+          "relationship": "object participates in process",
+          "target": "Valve degeneration"
+        },
+        {
+          "source": "Blood flow",
+          "relationship": "object participates in process",
+          "target": "Flow obstruction"
+        },
+        {
+          "source": "Blood flow",
+          "relationship": "object participates in process",
+          "target": "Backward leakage"
+        },
+        {
+          "source": "Valve degeneration",
           "relationship": "process changes state",
           "target": "Stenotic valve"
         },
         {
-          "source": "Backward leakage",
+          "source": "Valve degeneration",
           "relationship": "process changes state",
           "target": "Regurgitant valve"
         },
         {
-          "source": "Valve degeneration",
-          "relationship": "process leads to disease outcome",
+          "source": "Flow obstruction",
+          "relationship": "process changes state",
+          "target": "Increased cardiac workload"
+        },
+        {
+          "source": "Backward leakage",
+          "relationship": "process changes state",
+          "target": "Increased cardiac workload"
+        },
+        {
+          "source": "Stenotic valve",
+          "relationship": "state contributes to outcome",
+          "target": "Valvular heart disease"
+        },
+        {
+          "source": "Regurgitant valve",
+          "relationship": "state contributes to outcome",
+          "target": "Valvular heart disease"
+        },
+        {
+          "source": "Increased cardiac workload",
+          "relationship": "state contributes to outcome",
           "target": "Valvular heart disease"
         }
       ]
@@ -579,7 +819,7 @@
       ],
       "opm_processes": [
         "Muscle remodeling",
-        "Chamber dilation or thickening",
+        "Chamber enlargement",
         "Pump efficiency reduction"
       ],
       "opm_states": [
@@ -594,19 +834,221 @@
           "target": "Muscle remodeling"
         },
         {
+          "source": "Cardiac muscle cells",
+          "relationship": "object participates in process",
+          "target": "Muscle remodeling"
+        },
+        {
+          "source": "Ventricle",
+          "relationship": "object participates in process",
+          "target": "Chamber enlargement"
+        },
+        {
           "source": "Muscle remodeling",
           "relationship": "process changes state",
           "target": "Enlarged myocardium"
         },
         {
-          "source": "Chamber dilation or thickening",
+          "source": "Muscle remodeling",
           "relationship": "process changes state",
           "target": "Thickened myocardium"
         },
         {
+          "source": "Chamber enlargement",
+          "relationship": "process changes state",
+          "target": "Weakened contraction"
+        },
+        {
           "source": "Pump efficiency reduction",
-          "relationship": "process leads to disease outcome",
+          "relationship": "process changes state",
+          "target": "Weakened contraction"
+        },
+        {
+          "source": "Enlarged myocardium",
+          "relationship": "state contributes to outcome",
           "target": "Cardiomyopathy"
+        },
+        {
+          "source": "Thickened myocardium",
+          "relationship": "state contributes to outcome",
+          "target": "Cardiomyopathy"
+        },
+        {
+          "source": "Weakened contraction",
+          "relationship": "state contributes to outcome",
+          "target": "Cardiomyopathy"
+        }
+      ]
+    },
+    {
+      "id": "myocarditis",
+      "name": "myocarditis",
+      "question_patterns": [
+        "What causes myocarditis?",
+        "Why does the heart muscle become inflamed?",
+        "What leads to myocardial inflammation?"
+      ],
+      "keywords": [
+        "myocarditis",
+        "myocardial inflammation",
+        "viral myocarditis",
+        "inflamed heart muscle",
+        "autoimmune myocarditis"
+      ],
+      "answer": "Myocarditis can result from viral, autoimmune, or toxic triggers that inflame the heart muscle and impair its contractile function.",
+      "explanation": "In this simplified example, a viral infection or autoimmune reaction activates an immune response in the myocardium. Tissue inflammation and edema develop in the heart muscle and impair contraction, producing myocarditis.",
+      "reasoning_path": [
+        "Viral or autoimmune trigger",
+        "Myocardial inflammation",
+        "Impaired contraction",
+        "Myocarditis"
+      ],
+      "opm_objects": [
+        "Myocardium",
+        "Inflammatory cells",
+        "Cardiac muscle cells"
+      ],
+      "opm_processes": [
+        "Immune response",
+        "Tissue inflammation",
+        "Contractile impairment"
+      ],
+      "opm_states": [
+        "Inflamed myocardium",
+        "Edematous tissue",
+        "Reduced contractility"
+      ],
+      "opm_links": [
+        {
+          "source": "Inflammatory cells",
+          "relationship": "object participates in process",
+          "target": "Immune response"
+        },
+        {
+          "source": "Myocardium",
+          "relationship": "object participates in process",
+          "target": "Tissue inflammation"
+        },
+        {
+          "source": "Cardiac muscle cells",
+          "relationship": "object participates in process",
+          "target": "Contractile impairment"
+        },
+        {
+          "source": "Immune response",
+          "relationship": "process changes state",
+          "target": "Inflamed myocardium"
+        },
+        {
+          "source": "Tissue inflammation",
+          "relationship": "process changes state",
+          "target": "Edematous tissue"
+        },
+        {
+          "source": "Contractile impairment",
+          "relationship": "process changes state",
+          "target": "Reduced contractility"
+        },
+        {
+          "source": "Inflamed myocardium",
+          "relationship": "state contributes to outcome",
+          "target": "Myocarditis"
+        },
+        {
+          "source": "Edematous tissue",
+          "relationship": "state contributes to outcome",
+          "target": "Myocarditis"
+        },
+        {
+          "source": "Reduced contractility",
+          "relationship": "state contributes to outcome",
+          "target": "Myocarditis"
+        }
+      ]
+    },
+    {
+      "id": "pericarditis",
+      "name": "pericarditis",
+      "question_patterns": [
+        "What causes pericarditis?",
+        "Why does the pericardium become inflamed?",
+        "What leads to pericardial inflammation?"
+      ],
+      "keywords": [
+        "pericarditis",
+        "pericardial inflammation",
+        "pericardial sac",
+        "friction rub",
+        "pericardial effusion"
+      ],
+      "answer": "Pericarditis can occur when the pericardium becomes inflamed, often following an infection, autoimmune trigger, or recent cardiac injury.",
+      "explanation": "In this simplified example, an infectious or autoimmune trigger activates the immune response in the pericardium. Inflammation of the pericardial sac can produce a friction rub and sometimes a pericardial effusion, which together describe pericarditis.",
+      "reasoning_path": [
+        "Infectious or autoimmune trigger",
+        "Pericardial inflammation",
+        "Pericardial friction",
+        "Pericarditis"
+      ],
+      "opm_objects": [
+        "Pericardium",
+        "Pericardial fluid",
+        "Inflammatory cells"
+      ],
+      "opm_processes": [
+        "Immune response",
+        "Pericardial inflammation",
+        "Friction generation"
+      ],
+      "opm_states": [
+        "Inflamed pericardial sac",
+        "Pericardial effusion",
+        "Friction rub"
+      ],
+      "opm_links": [
+        {
+          "source": "Inflammatory cells",
+          "relationship": "object participates in process",
+          "target": "Immune response"
+        },
+        {
+          "source": "Pericardium",
+          "relationship": "object participates in process",
+          "target": "Pericardial inflammation"
+        },
+        {
+          "source": "Pericardial fluid",
+          "relationship": "object participates in process",
+          "target": "Friction generation"
+        },
+        {
+          "source": "Immune response",
+          "relationship": "process changes state",
+          "target": "Inflamed pericardial sac"
+        },
+        {
+          "source": "Pericardial inflammation",
+          "relationship": "process changes state",
+          "target": "Pericardial effusion"
+        },
+        {
+          "source": "Friction generation",
+          "relationship": "process changes state",
+          "target": "Friction rub"
+        },
+        {
+          "source": "Inflamed pericardial sac",
+          "relationship": "state contributes to outcome",
+          "target": "Pericarditis"
+        },
+        {
+          "source": "Pericardial effusion",
+          "relationship": "state contributes to outcome",
+          "target": "Pericarditis"
+        },
+        {
+          "source": "Friction rub",
+          "relationship": "state contributes to outcome",
+          "target": "Pericarditis"
         }
       ]
     }

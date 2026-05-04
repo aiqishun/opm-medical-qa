@@ -195,10 +195,10 @@ class ScriptInvocationTests(unittest.TestCase):
             self.assertIn("Cardiology examples:", result.stdout)
             self.assertTrue(output_path.exists())
             lines = output_path.read_text(encoding="utf-8").splitlines()
-            # The bundled raw sample has 15 synthetic records: 12 cardiology
-            # (10 supported topics + 2 cardiology-adjacent fallbacks) and
+            # The bundled raw sample has 19 synthetic records: 16 cardiology
+            # (14 supported topics + 2 cardiology-adjacent fallbacks) and
             # 3 non-cardiology controls that should be filtered out.
-            self.assertEqual(len(lines), 12)
+            self.assertEqual(len(lines), 16)
 
 
 if __name__ == "__main__":
