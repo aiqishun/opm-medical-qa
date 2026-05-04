@@ -706,8 +706,11 @@ contains:
 Run the test suite from the project root:
 
 ```bash
-python -m unittest discover -t . -s tests
+python3 -m pytest
 ```
+
+Tests also run automatically in GitHub Actions on every push and pull request
+using Python 3.11.
 
 Current local status:
 
