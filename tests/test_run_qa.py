@@ -105,6 +105,56 @@ class MainTests(unittest.TestCase):
                 any(link["target"] == "Plaque build-up" for link in payload["links"])
             )
 
+    def test_main_exports_mermaid_when_requested(self) -> None:
+        with TemporaryDirectory() as tmp:
+            mermaid_path = Path(tmp) / "nested" / "graph.mmd"
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = run_qa.main(
+                    [
+                        "--question",
+                        "What causes myocardial infarction?",
+                        "--knowledge-base",
+                        str(DEFAULT_KB),
+                        "--export-mermaid",
+                        str(mermaid_path),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn(f"Mermaid diagram exported to: {mermaid_path}", buffer.getvalue())
+            self.assertTrue(mermaid_path.exists())
+            text = mermaid_path.read_text(encoding="utf-8")
+            self.assertIn("flowchart TD", text)
+            self.assertIn("Coronary artery", text)
+
+    def test_main_exports_both_graph_and_mermaid_when_both_flags_given(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            graph_path = tmp_path / "graph.json"
+            mermaid_path = tmp_path / "graph.mmd"
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = run_qa.main(
+                    [
+                        "--question",
+                        "What causes myocardial infarction?",
+                        "--knowledge-base",
+                        str(DEFAULT_KB),
+                        "--export-graph",
+                        str(graph_path),
+                        "--export-mermaid",
+                        str(mermaid_path),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertTrue(graph_path.exists())
+            self.assertTrue(mermaid_path.exists())
+            stdout = buffer.getvalue()
+            self.assertIn(f"Graph exported to: {graph_path}", stdout)
+            self.assertIn(f"Mermaid diagram exported to: {mermaid_path}", stdout)
+
     def test_main_without_export_flag_does_not_change_stdout(self) -> None:
         buffer = io.StringIO()
         with redirect_stdout(buffer):

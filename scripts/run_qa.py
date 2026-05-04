@@ -23,6 +23,7 @@ if str(SRC_DIR) not in sys.path:
 from data_io import DataIOError  # noqa: E402
 from formatting import format_qa_result  # noqa: E402
 from graph.exporter import GraphExportError, export_graph  # noqa: E402
+from graph.mermaid import MermaidExportError, export_mermaid  # noqa: E402
 from reasoning import QAResult, RuleBasedCardiologyReasoner, load_topics  # noqa: E402
 
 
@@ -48,6 +49,16 @@ def _build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help=(
             "Optional path to write the OPM graph as JSON. "
+            "Parent directories are created automatically."
+        ),
+    )
+    parser.add_argument(
+        "--export-mermaid",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "Optional path to write the OPM graph as a Mermaid flowchart (.mmd). "
             "Parent directories are created automatically."
         ),
     )
@@ -88,6 +99,18 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"error: {error}", file=sys.stderr)
             return 1
         print(f"\nGraph exported to: {export_path}")
+
+    if args.export_mermaid is not None:
+        try:
+            mermaid_path = export_mermaid(
+                result.graph,
+                args.export_mermaid,
+                reasoning_path=result.reasoning_path,
+            )
+        except MermaidExportError as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 1
+        print(f"\nMermaid diagram exported to: {mermaid_path}")
 
     return 0
 

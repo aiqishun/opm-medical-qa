@@ -196,6 +196,58 @@ class RunBatchTests(unittest.TestCase):
             self.assertEqual(len(results), 1)
             self.assertEqual(results[0]["id"], "ok")
 
+    def test_run_batch_exports_mermaid_when_mermaid_dir_given(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            mermaid_dir = tmp_path / "mermaid"
+            _write_jsonl(
+                input_path,
+                [
+                    {"id": "mi-001", "question": "What causes myocardial infarction?"},
+                    {"id": "fallback", "question": "How do glaciers form?"},
+                ],
+            )
+
+            summary = run_batch_qa.run_batch(
+                input_path=input_path,
+                output_path=output_path,
+                graphs_dir=graphs_dir,
+                knowledge_base_path=DEFAULT_KB,
+                mermaid_dir=mermaid_dir,
+            )
+
+            self.assertEqual(summary.mermaid_dir, mermaid_dir)
+            results = _read_jsonl(output_path)
+            matched = next(r for r in results if r["status"] == "matched")
+            fallback = next(r for r in results if r["status"] == "fallback")
+
+            self.assertIsNotNone(matched["mermaid_path"])
+            mmd = Path(matched["mermaid_path"])
+            self.assertTrue(mmd.exists())
+            self.assertEqual(mmd.suffix, ".mmd")
+            self.assertIn("flowchart TD", mmd.read_text(encoding="utf-8"))
+            self.assertIsNone(fallback["mermaid_path"])
+
+    def test_run_batch_no_mermaid_when_mermaid_dir_not_given(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            _write_jsonl(input_path, [{"question": "What causes hypertension?"}])
+
+            summary = run_batch_qa.run_batch(
+                input_path=input_path,
+                output_path=tmp_path / "results.jsonl",
+                graphs_dir=tmp_path / "graphs",
+                knowledge_base_path=DEFAULT_KB,
+            )
+
+            self.assertIsNone(summary.mermaid_dir)
+            results = _read_jsonl(tmp_path / "results.jsonl")
+            self.assertNotIn("mermaid_path", results[0])
+
     def test_empty_input_writes_empty_results_and_no_graphs(self) -> None:
         with TemporaryDirectory() as tmp:
             tmp_path = Path(tmp)
@@ -338,6 +390,105 @@ class MainTests(unittest.TestCase):
             self.assertIn("| Fallback | 1 |", text)
             self.assertIn("| hypertension | 1 |", text)
             self.assertIn("- How do glaciers form?", text)
+
+    def test_main_exports_mermaid_diagrams_when_requested(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            output_path = tmp_path / "results.jsonl"
+            graphs_dir = tmp_path / "graphs"
+            mermaid_dir = tmp_path / "mermaid"
+            _write_jsonl(
+                input_path,
+                [
+                    {"id": "case-001", "question": "What causes hypertension?"},
+                    {"id": "case-002", "question": "How do glaciers form?"},
+                ],
+            )
+
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = run_batch_qa.main(
+                    [
+                        "--input", str(input_path),
+                        "--output", str(output_path),
+                        "--graphs-dir", str(graphs_dir),
+                        "--mermaid-dir", str(mermaid_dir),
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            stdout = buffer.getvalue()
+            self.assertIn(f"Exported Mermaid diagrams to: {mermaid_dir}", stdout)
+
+            results = _read_jsonl(output_path)
+            matched = [r for r in results if r["status"] == "matched"]
+            fallback = [r for r in results if r["status"] == "fallback"]
+
+            self.assertEqual(len(matched), 1)
+            self.assertIsNotNone(matched[0]["mermaid_path"])
+            mmd_path = Path(matched[0]["mermaid_path"])
+            self.assertTrue(mmd_path.exists())
+            self.assertIn("flowchart TD", mmd_path.read_text(encoding="utf-8"))
+
+            self.assertIsNone(fallback[0]["mermaid_path"])
+
+    def test_main_mermaid_dir_result_has_mermaid_path_field(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            _write_jsonl(input_path, [{"id": "q1", "question": "What causes hypertension?"}])
+
+            with redirect_stdout(io.StringIO()):
+                run_batch_qa.main(
+                    [
+                        "--input", str(input_path),
+                        "--output", str(tmp_path / "out.jsonl"),
+                        "--graphs-dir", str(tmp_path / "graphs"),
+                        "--mermaid-dir", str(tmp_path / "mermaid"),
+                    ]
+                )
+
+            results = _read_jsonl(tmp_path / "out.jsonl")
+            self.assertIn("mermaid_path", results[0])
+
+    def test_main_without_mermaid_dir_has_no_mermaid_path_field(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            _write_jsonl(input_path, [{"question": "What causes hypertension?"}])
+
+            with redirect_stdout(io.StringIO()):
+                run_batch_qa.main(
+                    [
+                        "--input", str(input_path),
+                        "--output", str(tmp_path / "out.jsonl"),
+                        "--graphs-dir", str(tmp_path / "graphs"),
+                    ]
+                )
+
+            results = _read_jsonl(tmp_path / "out.jsonl")
+            self.assertNotIn("mermaid_path", results[0])
+
+    def test_main_mermaid_filenames_match_graph_stems(self) -> None:
+        with TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            input_path = tmp_path / "input.jsonl"
+            _write_jsonl(input_path, [{"id": "mi-001", "question": "What causes myocardial infarction?"}])
+
+            with redirect_stdout(io.StringIO()):
+                run_batch_qa.main(
+                    [
+                        "--input", str(input_path),
+                        "--output", str(tmp_path / "out.jsonl"),
+                        "--graphs-dir", str(tmp_path / "graphs"),
+                        "--mermaid-dir", str(tmp_path / "mermaid"),
+                    ]
+                )
+
+            results = _read_jsonl(tmp_path / "out.jsonl")
+            self.assertEqual(Path(results[0]["graph_path"]).stem, "mi-001")
+            self.assertEqual(Path(results[0]["mermaid_path"]).stem, "mi-001")
 
     def test_main_without_summary_does_not_write_report(self) -> None:
         with TemporaryDirectory() as tmp:

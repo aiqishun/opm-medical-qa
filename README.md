@@ -64,6 +64,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | Reasoning | `src/reasoning/reasoner.py` | Select the best topic or return a fallback response |
 | OPM formatting | `src/graph/opm_graph.py` | Represent and format objects, processes, states, and links |
 | OPM JSON export | `src/graph/exporter.py` | Atomically write an `OPMGraph` to a JSON file |
+| Mermaid export | `src/graph/mermaid.py` | Convert an `OPMGraph` to a Mermaid flowchart diagram and write to `.mmd` |
 | Output formatting | `src/formatting.py` | Render answer, explanation, reasoning path, and OPM sections |
 | Batch summaries | `src/evaluation/summary.py` | Render a Markdown report from a batch QA run |
 | Tests | `tests/` | Unit and CLI behavior checks |
@@ -175,6 +176,104 @@ files under `outputs/graphs/` are git-ignored.
 > literature, and must not be used for clinical decision-making. The export
 > format is also not a standard-compliant OPM serialization — it is a compact
 > JSON shape chosen for prototype use.
+
+## Mermaid Export
+
+The OPM-style graph can also be exported as a [Mermaid](https://mermaid.js.org/)
+flowchart for visual inspection in any Mermaid-compatible viewer (GitHub,
+VS Code, Obsidian, etc.). Pass `--export-mermaid` with a `.mmd` destination:
+
+```bash
+python scripts/run_qa.py \
+    --question "What causes myocardial infarction?" \
+    --export-mermaid outputs/graphs/myocardial_infarction.mmd
+```
+
+The CLI appends a confirmation line and the file is valid Mermaid:
+
+```text
+Mermaid diagram exported to: outputs/graphs/myocardial_infarction.mmd
+```
+
+Example `.mmd` output for the myocardial-infarction topic:
+
+```
+flowchart TD
+    obj_coronary_artery["Coronary artery"]
+    obj_atherosclerotic_plaque["Atherosclerotic plaque"]
+    obj_heart_muscle["Heart muscle"]
+    proc_plaque_build_up(["Plaque build-up"])
+    proc_artery_blockage(["Artery blockage"])
+    proc_blood_flow_reduction(["Blood flow reduction"])
+    state_narrowed_artery("Narrowed artery")
+    state_low_oxygen_supply("Low oxygen supply")
+    state_injured_myocardium("Injured myocardium")
+    out_myocardial_infarction{{"Myocardial infarction"}}
+    step_atherosclerosis{{"Atherosclerosis"}}
+    step_coronary_artery_blockage{{"Coronary artery blockage"}}
+    step_reduced_blood_flow{{"Reduced blood flow"}}
+    obj_coronary_artery -->|"object participates in process"| proc_plaque_build_up
+    proc_plaque_build_up -->|"process changes state"| state_narrowed_artery
+    proc_artery_blockage -->|"process changes state"| state_low_oxygen_supply
+    proc_blood_flow_reduction -->|"process leads to disease outcome"| out_myocardial_infarction
+    step_atherosclerosis ==>|"leads to"| step_coronary_artery_blockage
+    step_coronary_artery_blockage ==>|"leads to"| step_reduced_blood_flow
+    step_reduced_blood_flow ==>|"leads to"| out_myocardial_infarction
+    step_atherosclerosis -.->|"involves"| obj_atherosclerotic_plaque
+    out_myocardial_infarction -.->|"involves"| obj_heart_muscle
+    out_myocardial_infarction -.->|"involves"| state_injured_myocardium
+```
+
+Node shapes map to OPM element types:
+
+| Shape | Mermaid syntax | OPM element |
+| --- | --- | --- |
+| Rectangle | `["label"]` | Object |
+| Stadium | `(["label"])` | Process |
+| Rounded rectangle | `("label")` | State |
+| Hexagon | `{{"label"}}` | Terminal outcome (link endpoint not in O/P/S) or reasoning-path step |
+
+Edge styles convey the kind of relationship:
+
+| Arrow | Meaning |
+| --- | --- |
+| `-->` | OPM link from the knowledge base |
+| `==>` | Reasoning-path spine (`leads to`) — connects upstream cause to final outcome |
+| `-.->` | `involves` — wires an otherwise-isolated OPM element into the spine |
+
+The reasoning chain is reflected as a connected `==>` spine, terminal outcomes
+are explicitly defined, and isolated OPM elements are attached to the most
+relevant reasoning step (best-step matching uses substring containment, then
+content-word overlap, then a 5-character common-prefix fuzzy match, with a
+fallback to the final step). All shapes and arrow styles render in standard
+GitHub-flavored Mermaid.
+
+Both `--export-graph` and `--export-mermaid` can be used together in a single
+invocation. Parent directories are created automatically.
+
+### Batch Mermaid export
+
+Pass `--mermaid-dir` to `run_batch_qa.py` to write one `.mmd` file per matched
+question alongside the JSON graphs:
+
+```bash
+python scripts/run_batch_qa.py \
+    --input data/processed/medqa_cardiology_sample.jsonl \
+    --output experiments/results/batch_qa_results.jsonl \
+    --graphs-dir outputs/graphs/batch/ \
+    --mermaid-dir outputs/graphs/batch/
+```
+
+Each matched result row gains a `mermaid_path` field pointing to the generated
+`.mmd` file (fallback rows have `mermaid_path: null`). When `--mermaid-dir` is
+omitted the field is not present in the output at all, so existing pipelines
+that do not request Mermaid output are unaffected.
+
+The script prints a confirmation line when diagrams are written:
+
+```text
+Exported Mermaid diagrams to: outputs/graphs/batch
+```
 
 ## Knowledge Base
 
@@ -344,15 +443,17 @@ python -m unittest discover -t . -s tests
 Current local status:
 
 ```text
-Ran 98 tests
+Ran 135 tests
 OK
 ```
 
 The tests cover JSON/JSONL helpers, topic loading, keyword matching, reasoning
 fallbacks, OPM formatting, OPM JSON export (including the `--export-graph` CLI
-flag), the batch experiment script (happy path, fallbacks, missing/blank
-questions, filename rules, error reporting, and the `--summary` Markdown
-report), CLI output, and the placeholder MedQA preprocessing script.
+flag), Mermaid diagram conversion and export (including the `--export-mermaid`
+and `--mermaid-dir` CLI flags), the batch experiment script (happy path,
+fallbacks, missing/blank questions, filename rules, error reporting, and the
+`--summary` Markdown report), CLI output, and the placeholder MedQA
+preprocessing script.
 
 ## Roadmap
 

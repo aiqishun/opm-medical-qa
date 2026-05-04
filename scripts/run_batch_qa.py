@@ -33,6 +33,7 @@ if str(SRC_DIR) not in sys.path:
 from data_io import DataIOError, read_jsonl, write_jsonl  # noqa: E402
 from evaluation.summary import build_markdown_summary  # noqa: E402
 from graph.exporter import GraphExportError, export_graph  # noqa: E402
+from graph.mermaid import MermaidExportError, export_mermaid  # noqa: E402
 from reasoning import RuleBasedCardiologyReasoner, load_topics  # noqa: E402
 
 
@@ -59,6 +60,7 @@ class BatchSummary:
     input_path: Path
     output_path: Path
     graphs_dir: Path
+    mermaid_dir: Path | None = None
     results: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -92,6 +94,16 @@ def _build_parser() -> argparse.ArgumentParser:
         default=DEFAULT_KNOWLEDGE_BASE,
         type=Path,
         help="Path to the cardiology knowledge base JSON file.",
+    )
+    parser.add_argument(
+        "--mermaid-dir",
+        default=None,
+        type=Path,
+        metavar="DIR",
+        help=(
+            "Optional directory to write one Mermaid flowchart (.mmd) per matched "
+            "question alongside the JSON graph files."
+        ),
     )
     parser.add_argument(
         "--summary",
@@ -131,12 +143,18 @@ def run_batch(
     output_path: Path,
     graphs_dir: Path,
     knowledge_base_path: Path,
+    mermaid_dir: Path | None = None,
 ) -> BatchSummary:
     """Run the reasoner over ``input_path`` and write structured results.
+
+    When ``mermaid_dir`` is provided, a Mermaid flowchart (``.mmd``) is written
+    alongside the JSON graph for each matched record, and each result row gains
+    a ``mermaid_path`` field.
 
     Raises:
         DataIOError: if the knowledge base or input file is missing or invalid.
         GraphExportError: if a graph file cannot be written.
+        MermaidExportError: if a Mermaid file cannot be written.
     """
 
     topics = load_topics(knowledge_base_path)
@@ -156,26 +174,36 @@ def run_batch(
         result = reasoner.answer(question)
         record_id = record.get("id")
         graph_path: str | None = None
+        mermaid_path: str | None = None
 
         if result.is_match:
             stem = _safe_filename_stem(record_id, index)
             target = graphs_dir / f"{stem}.json"
             export_graph(result.graph, target)
             graph_path = str(target)
+            if mermaid_dir is not None:
+                mmd_target = mermaid_dir / f"{stem}.mmd"
+                export_mermaid(
+                    result.graph,
+                    mmd_target,
+                    reasoning_path=result.reasoning_path,
+                )
+                mermaid_path = str(mmd_target)
             matched += 1
 
-        results.append(
-            {
-                "id": record_id,
-                "question": question,
-                "matched_topic": result.matched_topic,
-                "answer": result.answer,
-                "explanation": result.explanation,
-                "reasoning_path": list(result.reasoning_path),
-                "graph_path": graph_path,
-                "status": STATUS_MATCHED if result.is_match else STATUS_FALLBACK,
-            }
-        )
+        row: dict[str, Any] = {
+            "id": record_id,
+            "question": question,
+            "matched_topic": result.matched_topic,
+            "answer": result.answer,
+            "explanation": result.explanation,
+            "reasoning_path": list(result.reasoning_path),
+            "graph_path": graph_path,
+            "status": STATUS_MATCHED if result.is_match else STATUS_FALLBACK,
+        }
+        if mermaid_dir is not None:
+            row["mermaid_path"] = mermaid_path
+        results.append(row)
 
     write_jsonl(output_path, results)
 
@@ -187,6 +215,7 @@ def run_batch(
         input_path=input_path,
         output_path=output_path,
         graphs_dir=graphs_dir,
+        mermaid_dir=mermaid_dir,
         results=results,
     )
 
@@ -216,6 +245,8 @@ def _print_summary(summary: BatchSummary) -> None:
     print(f"Wrote results to: {summary.output_path}")
     if summary.matched:
         print(f"Exported graphs to: {summary.graphs_dir}")
+    if summary.matched and summary.mermaid_dir is not None:
+        print(f"Exported Mermaid diagrams to: {summary.mermaid_dir}")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -229,8 +260,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             output_path=args.output,
             graphs_dir=args.graphs_dir,
             knowledge_base_path=args.knowledge_base,
+            mermaid_dir=args.mermaid_dir,
         )
-    except (DataIOError, GraphExportError) as error:
+    except (DataIOError, GraphExportError, MermaidExportError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 1
 
