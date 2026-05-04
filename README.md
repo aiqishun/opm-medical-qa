@@ -275,6 +275,195 @@ The script prints a confirmation line when diagrams are written:
 Exported Mermaid diagrams to: outputs/graphs/batch
 ```
 
+## Example Outputs
+
+The snippets below come from a real run of this prototype against the bundled
+synthetic sample. They are reproduced verbatim from files in this repository so
+the documentation stays accurate.
+
+> **Reminder:** every output here was produced by the rule-based reasoner over
+> a small, hand-built knowledge base and a synthetic JSONL sample. This is a
+> research prototype, **not** a full MedQA evaluation, and the artifacts are
+> not validated medical knowledge. Do **not** use any of this for diagnosis,
+> triage, or clinical decision-making.
+
+### Single-question CLI run
+
+Command:
+
+```bash
+python scripts/run_qa.py --question "What causes angina?"
+```
+
+Output:
+
+```text
+answer:
+Angina is commonly caused by reduced oxygen supply to heart muscle, often due to narrowed coronary arteries.
+
+explanation:
+In this rule-based example, coronary artery narrowing limits blood flow during increased demand. The resulting oxygen mismatch in the heart muscle produces ischemia, which manifests as chest discomfort known as angina.
+
+reasoning path:
+Coronary artery narrowing -> Reduced myocardial oxygen supply -> Ischemic myocardium -> Angina
+
+OPM objects:
+- Coronary artery
+- Heart muscle
+- Oxygen
+
+OPM processes:
+- Artery narrowing
+- Oxygen delivery reduction
+- Pain signal generation
+
+OPM states:
+- Oxygen mismatch
+- Ischemic myocardium
+- Chest discomfort
+
+OPM links:
+- Coronary artery --[object participates in process]--> Artery narrowing
+- Oxygen --[object participates in process]--> Oxygen delivery reduction
+- Heart muscle --[object participates in process]--> Pain signal generation
+- Artery narrowing --[process changes state]--> Oxygen mismatch
+- Oxygen delivery reduction --[process changes state]--> Ischemic myocardium
+- Pain signal generation --[process changes state]--> Chest discomfort
+- Oxygen mismatch --[state contributes to outcome]--> Angina
+- Ischemic myocardium --[state contributes to outcome]--> Angina
+- Chest discomfort --[state contributes to outcome]--> Angina
+```
+
+### JSON graph (excerpt)
+
+The OPM graph for the same angina topic, exported by the batch run to
+[`outputs/graphs/batch/angina-001.json`](outputs/graphs/batch/angina-001.json):
+
+```json
+{
+  "objects": ["Coronary artery", "Heart muscle", "Oxygen"],
+  "processes": [
+    "Artery narrowing",
+    "Oxygen delivery reduction",
+    "Pain signal generation"
+  ],
+  "states": [
+    "Oxygen mismatch",
+    "Ischemic myocardium",
+    "Chest discomfort"
+  ],
+  "links": [
+    {
+      "source": "Coronary artery",
+      "relationship": "object participates in process",
+      "target": "Artery narrowing"
+    },
+    {
+      "source": "Oxygen delivery reduction",
+      "relationship": "process changes state",
+      "target": "Ischemic myocardium"
+    },
+    {
+      "source": "Ischemic myocardium",
+      "relationship": "state contributes to outcome",
+      "target": "Angina"
+    }
+  ]
+}
+```
+
+The full file contains all 9 links (3 object→process, 3 process→state, 3
+state→outcome). The shape mirrors the knowledge base so it can be re-loaded
+into an `OPMGraph`.
+
+### Mermaid graph
+
+The same angina run also produces
+[`outputs/graphs/batch_mermaid/angina-001.mmd`](outputs/graphs/batch_mermaid/angina-001.mmd).
+GitHub renders the block below as an actual diagram:
+
+```mermaid
+flowchart TD
+    obj_coronary_artery["Coronary artery"]
+    obj_heart_muscle["Heart muscle"]
+    obj_oxygen["Oxygen"]
+    proc_artery_narrowing(["Artery narrowing"])
+    proc_oxygen_delivery_reduction(["Oxygen delivery reduction"])
+    proc_pain_signal_generation(["Pain signal generation"])
+    state_oxygen_mismatch("Oxygen mismatch")
+    state_ischemic_myocardium("Ischemic myocardium")
+    state_chest_discomfort("Chest discomfort")
+    out_angina{{"Angina"}}
+    step_coronary_artery_narrowing{{"Coronary artery narrowing"}}
+    step_reduced_myocardial_oxygen_supply{{"Reduced myocardial oxygen supply"}}
+    obj_coronary_artery -->|"object participates in process"| proc_artery_narrowing
+    obj_oxygen -->|"object participates in process"| proc_oxygen_delivery_reduction
+    obj_heart_muscle -->|"object participates in process"| proc_pain_signal_generation
+    proc_artery_narrowing -->|"process changes state"| state_oxygen_mismatch
+    proc_oxygen_delivery_reduction -->|"process changes state"| state_ischemic_myocardium
+    proc_pain_signal_generation -->|"process changes state"| state_chest_discomfort
+    state_oxygen_mismatch -->|"state contributes to outcome"| out_angina
+    state_ischemic_myocardium -->|"state contributes to outcome"| out_angina
+    state_chest_discomfort -->|"state contributes to outcome"| out_angina
+    step_coronary_artery_narrowing ==>|"leads to"| step_reduced_myocardial_oxygen_supply
+    step_reduced_myocardial_oxygen_supply ==>|"leads to"| state_ischemic_myocardium
+    state_ischemic_myocardium ==>|"leads to"| out_angina
+```
+
+Notice that the reasoning-path spine (`==>` arrows) reuses the existing
+`state_ischemic_myocardium` node rather than duplicating it — the path step
+"Ischemic myocardium" exactly matches the OPM state of the same name.
+
+### Batch summary (excerpt)
+
+The full report lives at
+[`experiments/results/batch_summary.md`](experiments/results/batch_summary.md);
+the excerpt below shows the headline counts and topic frequencies from the
+bundled synthetic sample run:
+
+```markdown
+# OPM Medical QA — Batch Summary
+
+> Prototype run on a small synthetic sample. This is **not** a full MedQA
+> evaluation and reports no medical performance metrics. Generated graphs are
+> research artifacts, not clinical knowledge.
+
+## Counts
+
+| Metric | Value |
+| --- | ---: |
+| Total input records | 16 |
+| Questions processed | 16 |
+| Skipped (missing question) | 0 |
+| Matched | 14 |
+| Fallback | 2 |
+| Match rate | 87.5% |
+| Graph files generated | 14 |
+
+## Matched topic frequency
+
+| Topic | Count |
+| --- | ---: |
+| hypertension | 2 |
+| myocardial infarction | 2 |
+| angina | 1 |
+| arrhythmia | 1 |
+| atherosclerosis | 1 |
+| cardiac arrest | 1 |
+| cardiomyopathy | 1 |
+| coronary artery disease | 1 |
+| heart failure | 1 |
+| myocarditis | 1 |
+| pericarditis | 1 |
+| valvular heart disease | 1 |
+```
+
+The two fallback rows correspond to the cardiology-adjacent synthetic
+questions about post-valve-replacement anticoagulation and cardiac
+rehabilitation — both pass the keyword preprocessing filter but intentionally
+fall outside the prototype knowledge base, so the reasoner returns its
+fallback response and no OPM graph is exported.
+
 ## Knowledge Base
 
 The current hand-built cardiology knowledge base is:
@@ -283,11 +472,15 @@ The current hand-built cardiology knowledge base is:
 data/processed/cardiology_knowledge.json
 ```
 
-It includes prototype topics for myocardial infarction, hypertension, heart
+It includes 12 prototype topics: myocardial infarction, hypertension, heart
 failure, angina, arrhythmia, atherosclerosis, coronary artery disease, cardiac
-arrest, valvular heart disease, and cardiomyopathy. Each topic includes question
-patterns, keywords, an answer, an explanation, a reasoning path, and OPM
-objects/processes/states/links.
+arrest, valvular heart disease, cardiomyopathy, myocarditis, and pericarditis.
+Each topic uses the same schema (`name`, `question_patterns`, `keywords`,
+`answer`, `explanation`, `reasoning_path`, `opm_objects`, `opm_processes`,
+`opm_states`, `opm_links`) and is structured so that every OPM element
+participates in at least one link, the link chain runs from object → process →
+state → outcome, and the reasoning path runs from an upstream cause/mechanism
+to the disease outcome in 3–5 simplified, non-clinical-decision steps.
 
 ## Dataset Status
 
@@ -303,21 +496,21 @@ data/raw/medqa_sample.jsonl
 
 ### Synthetic sample coverage
 
-The sample contains 15 synthetic, MedQA-style records — every question, option,
+The sample contains 19 synthetic, MedQA-style records — every question, option,
 and explanation was authored for this prototype and **does not** come from the
 real MedQA dataset. The split is designed to exercise each stage of the
 pipeline:
 
 | Bucket | Count | Purpose |
 | --- | ---: | --- |
-| Supported topics (matched in batch QA) | 10 | Cover all 6 required topics — myocardial infarction (×2), hypertension (×2), heart failure, arrhythmia, coronary artery disease, angina — plus 2 bonus topics (atherosclerosis, cardiac arrest) |
+| Supported topics (matched in batch QA) | 14 | One question per knowledge-base topic, with hypertension and myocardial infarction covered twice to exercise topic-frequency counts |
 | Cardiology-adjacent fallbacks | 2 | Pass the keyword preprocessing filter but intentionally fall outside the prototype knowledge base (post-valve-replacement anticoagulation, cardiac rehabilitation) |
 | Non-cardiology controls | 3 | Endocrine, dermatology, gastroenterology — used to confirm the preprocessing filter excludes them |
 
-Running `scripts/prepare_medqa.py` on the raw file therefore yields **12**
-cardiology-related records (10 supported + 2 fallback). Running
-`scripts/run_batch_qa.py` over those 12 then produces 10 matched results, 2
-fallbacks, and 10 OPM graph JSON files.
+Running `scripts/prepare_medqa.py` on the raw file therefore yields **16**
+cardiology-related records (14 supported + 2 fallback). Running
+`scripts/run_batch_qa.py` over those 16 then produces 14 matched results, 2
+fallbacks, and 14 OPM graph JSON files.
 
 Run the placeholder cardiology filter with:
 
