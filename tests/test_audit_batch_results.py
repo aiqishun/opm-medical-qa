@@ -37,6 +37,7 @@ def _matched_row(
     answer="An answer.",
     graph=None,
     matched_terms=None,
+    filter_confidence=None,
 ):
     return {
         "id": rid,
@@ -47,6 +48,7 @@ def _matched_row(
         "reasoning_path": [],
         "graph_path": graph,
         "matched_terms": matched_terms,
+        "filter_confidence": filter_confidence,
         "status": "matched",
     }
 
@@ -109,6 +111,7 @@ class RunAuditTests(unittest.TestCase):
                         "angina",
                         rid="m1",
                         matched_terms=["angina", "coronary"],
+                        filter_confidence="high_confidence",
                     )
                 ],
             )
@@ -122,6 +125,8 @@ class RunAuditTests(unittest.TestCase):
 
             md = output_path.read_text(encoding="utf-8")
             self.assertIn("**Matched terms:** `angina`, `coronary`", md)
+            self.assertIn("**Filter confidence:** high_confidence", md)
+            self.assertIn("| high_confidence | 1 |", md)
 
     def test_dominance_warning_triggered_above_40_percent(self) -> None:
         with TemporaryDirectory() as tmp:

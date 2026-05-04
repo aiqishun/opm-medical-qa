@@ -105,6 +105,44 @@ class MatchedTermsTests(unittest.TestCase):
         self.assertIn("blood pressure", broad_terms)
         self.assertEqual(strict_terms, [])
 
+    def test_high_confidence_disease_term_selects_directly(self) -> None:
+        record = {"question": "Chest pain from myocardial infarction."}
+
+        terms = prepare_medqa.high_confidence_matched_terms(record)
+
+        self.assertEqual(terms, ["myocardial infarction"])
+
+    def test_high_confidence_rejects_ecg_without_specific_context(self) -> None:
+        record = {"question": "An ECG was ordered during routine evaluation."}
+
+        self.assertEqual(prepare_medqa.high_confidence_matched_terms(record), [])
+
+    def test_high_confidence_allows_ecg_with_specific_context(self) -> None:
+        record = {"question": "ECG shows ST elevation in the anterior leads."}
+
+        terms = prepare_medqa.high_confidence_matched_terms(record)
+
+        self.assertEqual(terms, ["ecg", "st elevation"])
+
+    def test_high_confidence_allows_ekg_with_arrhythmia_context(self) -> None:
+        record = {"question": "EKG reveals absent P waves."}
+
+        terms = prepare_medqa.high_confidence_matched_terms(record)
+
+        self.assertEqual(terms, ["ekg", "absent p waves"])
+
+    def test_high_confidence_rejects_murmur_without_specific_context(self) -> None:
+        record = {"question": "A soft murmur is noted on exam."}
+
+        self.assertEqual(prepare_medqa.high_confidence_matched_terms(record), [])
+
+    def test_high_confidence_allows_murmur_with_valve_context(self) -> None:
+        record = {"question": "A harsh murmur suggests aortic stenosis."}
+
+        terms = prepare_medqa.high_confidence_matched_terms(record)
+
+        self.assertEqual(terms, ["murmur", "aortic stenosis"])
+
 
 class FilterCardiologyRecordsTests(unittest.TestCase):
     def test_keeps_only_matching_records(self) -> None:
@@ -117,6 +155,7 @@ class FilterCardiologyRecordsTests(unittest.TestCase):
         self.assertEqual(len(filtered), 2)
         self.assertEqual(filtered[0]["question"], "What causes angina?")
         self.assertEqual(filtered[0]["matched_terms"], ["angina"])
+        self.assertEqual(filtered[0]["filter_confidence"], "broad")
 
     def test_strict_mode_keeps_topic_specific_terms_only(self) -> None:
         records = [
@@ -133,6 +172,36 @@ class FilterCardiologyRecordsTests(unittest.TestCase):
         self.assertEqual(len(filtered), 1)
         self.assertEqual(filtered[0]["question"], "ECG shows atrial fibrillation.")
         self.assertEqual(filtered[0]["matched_terms"], ["ecg", "atrial fibrillation"])
+
+    def test_high_confidence_mode_filters_contextually(self) -> None:
+        records = [
+            {"question": "ECG was performed for screening."},
+            {"question": "ECG shows QT prolongation."},
+            {"question": "Murmur heard on exam."},
+            {"question": "Murmur with cyanosis is concerning."},
+            {"question": "Past medical history includes hypertension."},
+            {"question": "Cardiac arrest occurred suddenly."},
+        ]
+
+        filtered = prepare_medqa.filter_cardiology_records(
+            records,
+            keywords=prepare_medqa.FILTER_MODE_KEYWORDS["high_confidence"],
+            filter_confidence="high_confidence",
+        )
+
+        self.assertEqual(len(filtered), 3)
+        self.assertEqual(
+            [record["matched_terms"] for record in filtered],
+            [
+                ["ecg", "qt prolongation"],
+                ["murmur", "cyanosis"],
+                ["cardiac arrest"],
+            ],
+        )
+        self.assertEqual(
+            {record["filter_confidence"] for record in filtered},
+            {"high_confidence"},
+        )
 
 
 class MainTests(unittest.TestCase):
@@ -161,6 +230,7 @@ class MainTests(unittest.TestCase):
             row = json.loads(written[0])
             self.assertEqual(row["question"], "What causes angina?")
             self.assertEqual(row["matched_terms"], ["angina"])
+            self.assertEqual(row["filter_confidence"], "broad")
 
     def test_main_strict_mode_excludes_generic_broad_terms(self) -> None:
         with TemporaryDirectory() as tmp:
@@ -190,6 +260,45 @@ class MainTests(unittest.TestCase):
             self.assertEqual(len(written), 1)
             row = json.loads(written[0])
             self.assertEqual(row["matched_terms"], ["arrhythmia", "ecg"])
+            self.assertEqual(row["filter_confidence"], "strict")
+
+    def test_main_high_confidence_mode_uses_context_rules(self) -> None:
+        with TemporaryDirectory() as tmp:
+            input_path = Path(tmp) / "in.jsonl"
+            output_path = Path(tmp) / "out.jsonl"
+            _write_jsonl(
+                input_path,
+                [
+                    {"question": "ECG was normal."},
+                    {"question": "EKG shows ventricular tachycardia."},
+                    {"question": "Murmur suggests mitral regurgitation."},
+                    {"question": "Blood pressure is elevated."},
+                ],
+            )
+
+            buffer = io.StringIO()
+            with redirect_stdout(buffer):
+                exit_code = prepare_medqa.main(
+                    [
+                        "--input", str(input_path),
+                        "--output", str(output_path),
+                        "--filter-mode", "high_confidence",
+                    ]
+                )
+
+            self.assertEqual(exit_code, 0)
+            self.assertIn("Filter mode: high_confidence", buffer.getvalue())
+            rows = [
+                json.loads(line)
+                for line in output_path.read_text(encoding="utf-8").splitlines()
+            ]
+            self.assertEqual(len(rows), 2)
+            self.assertEqual(rows[0]["matched_terms"], ["ekg", "ventricular tachycardia"])
+            self.assertEqual(rows[1]["matched_terms"], ["murmur", "mitral regurgitation"])
+            self.assertEqual(
+                {row["filter_confidence"] for row in rows},
+                {"high_confidence"},
+            )
 
     def test_main_reports_missing_input(self) -> None:
         with TemporaryDirectory() as tmp:
@@ -256,6 +365,7 @@ class MainTests(unittest.TestCase):
             row = json.loads(written[0])
             self.assertEqual(row["question"], "Treatment for diabetes")
             self.assertEqual(row["matched_terms"], ["diabetes"])
+            self.assertEqual(row["filter_confidence"], "custom")
 
 
 class ScriptInvocationTests(unittest.TestCase):

@@ -35,6 +35,7 @@ from evaluation.audit import (  # noqa: E402
     STATUS_FALLBACK,
     STATUS_MATCHED,
     build_audit_markdown,
+    filter_confidence_frequency,
     find_dominant_topic,
     sample_records,
     topic_frequency,
@@ -100,6 +101,7 @@ def run_audit(
     matched = [r for r in records if r.get("status") == STATUS_MATCHED]
     fallback = [r for r in records if r.get("status") == STATUS_FALLBACK]
     counts = topic_frequency(matched)
+    confidence_counts = filter_confidence_frequency(records)
     dominance = find_dominant_topic(counts, len(matched))
 
     rng = Random(seed)
@@ -114,6 +116,7 @@ def run_audit(
         matched_count=len(matched),
         fallback_count=len(fallback),
         topic_counts=counts,
+        filter_confidence_counts=confidence_counts,
         sampled_matched=sampled_matched,
         sampled_fallback=sampled_fallback,
         dominance=dominance,

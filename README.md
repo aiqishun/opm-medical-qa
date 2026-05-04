@@ -59,7 +59,7 @@ cardiology prototype with mock knowledge and explicit structured output.
 | --- | --- | --- |
 | CLI demos | `scripts/run_qa.py` | Parse a question, load the KB, run QA, print structured output |
 | Batch experiments | `scripts/run_batch_qa.py` | Run the reasoner over a JSONL file and save per-question results plus OPM graphs |
-| MedQA placeholder preprocessing | `scripts/prepare_medqa.py` | Filter a JSONL file for cardiology-related examples using broad or strict keyword modes; writes `matched_terms` for audit |
+| MedQA placeholder preprocessing | `scripts/prepare_medqa.py` | Filter a JSONL file for cardiology-related examples using broad, strict, or high-confidence modes; writes `matched_terms` and `filter_confidence` for audit |
 | MedQA schema inspection | `scripts/inspect_medqa_schema.py` | Summarize a local JSONL file's fields and print a small redacted preview |
 | Data helpers | `src/data_io.py` | Read and write JSON/JSONL files with friendly errors |
 | Topic model | `src/reasoning/topic.py` | Load and validate cardiology topic records |
@@ -570,8 +570,8 @@ python scripts/prepare_medqa.py --input data/raw/your_medqa_file.jsonl
 
 The default filter mode is `broad` for backward compatibility. Broad mode is
 useful for the bundled synthetic sample, but it can over-select real records
-when generic terms appear in vital signs or past history. For real-data
-inspection, prefer the more conservative strict mode:
+when generic terms appear in vital signs or past history. `strict` reduces
+generic vital-sign triggers and is a better first pass for real-data inspection:
 
 ```bash
 python scripts/prepare_medqa.py \
@@ -580,13 +580,28 @@ python scripts/prepare_medqa.py \
     --filter-mode strict
 ```
 
-Strict mode avoids generic triggers such as `blood pressure`, `pulse`, `heart
-rate`, `artery`, and `vascular`, and instead looks for topic-specific terms such
-as `myocardial infarction`, `angina`, `coronary artery disease`, `heart
-failure`, `arrhythmia`, `cardiac arrest`, `ECG`, `EKG`, `atrial fibrillation`,
-`ventricular tachycardia`, `myocarditis`, `pericarditis`, and
-`cardiomyopathy`. Every filtered output row includes `matched_terms` so sampled
-records can be audited later.
+For a more conservative candidate set, use `high_confidence`:
+
+```bash
+python scripts/prepare_medqa.py \
+    --input data/raw/medqa_full.jsonl \
+    --output data/processed/medqa_cardiology_high_confidence.jsonl \
+    --filter-mode high_confidence
+```
+
+High-confidence mode prioritizes disease/topic terms such as `myocardial
+infarction`, `heart failure`, `angina`, `coronary artery disease`,
+`endocarditis`, `myocarditis`, `pericarditis`, `cardiomyopathy`, `atrial
+fibrillation`, and `cardiac arrest`. It does **not** allow generic terms such as
+`ECG`, `EKG`, `murmur`, `blood pressure`, `pulse`, or `heart rate` to select a
+record by themselves. `ECG`/`EKG` must appear with context such as `ST
+elevation`, `ventricular tachycardia`, `QT prolongation`, or `absent P waves`.
+`murmur` must appear with context such as `aortic stenosis`, `mitral
+regurgitation`, `valve`, `cyanosis`, `congenital heart disease`, `PDA`, `VSD`,
+or `tetralogy of Fallot`.
+
+Every filtered output row includes `matched_terms` and `filter_confidence` so
+sampled records can be audited later.
 
 No full MedQA evaluation is included or claimed.
 
@@ -631,6 +646,7 @@ Each line of the output JSONL has this shape:
   "matched_topic": "myocardial infarction",
   "match_score": 12,
   "matched_terms": ["myocardial infarction", "coronary"],
+  "filter_confidence": "high_confidence",
   "answer": "...",
   "explanation": "...",
   "reasoning_path": ["Atherosclerosis", "Coronary artery blockage", "Reduced blood flow", "Myocardial infarction"],
@@ -648,9 +664,10 @@ Behavior notes:
   summary rather than aborting the run.
 - Unmatched questions still produce an output row, but `matched_topic` and
   `graph_path` are `null` and `status` is `"fallback"`.
-- `match_score` is the transparent rule-based topic score. `matched_terms` is
-  included when the input row came from `prepare_medqa.py` and records the
-  preprocessing terms that selected the row.
+- `match_score` is the transparent rule-based topic score. `matched_terms` and
+  `filter_confidence` are included when the input row came from
+  `prepare_medqa.py`; they record the preprocessing terms and mode that selected
+  the row.
 - The same non-clinical-use disclaimer applies to all generated artifacts.
 
 ### Markdown summary report
@@ -776,6 +793,7 @@ The script:
 - shows the top 10 most-frequent matched topics and the full topic table,
 - raises a ⚠ warning when any single topic accounts for more than **40%** of
   matched cases (configurable in `src/evaluation/audit.py`),
+- summarizes `filter_confidence` labels when they are present,
 - random-samples up to `--sample-size` records from each of the matched and
   fallback buckets (deterministic via `--seed`), and
 - writes a Markdown audit report with the question, matched topic, status,
@@ -827,7 +845,7 @@ using Python 3.11.
 Current local status:
 
 ```text
-Ran 222 tests
+Ran 233 tests
 OK
 ```
 

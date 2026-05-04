@@ -46,6 +46,16 @@ def topic_frequency(matched_results: Sequence[Mapping[str, Any]]) -> Counter:
     )
 
 
+def filter_confidence_frequency(records: Sequence[Mapping[str, Any]]) -> Counter:
+    """Tally ``filter_confidence`` values when present."""
+
+    return Counter(
+        str(record.get("filter_confidence"))
+        for record in records
+        if record.get("filter_confidence")
+    )
+
+
 def find_dominant_topic(
     counts: Counter,
     total_matched: int,
@@ -94,6 +104,7 @@ def build_audit_markdown(
     matched_count: int,
     fallback_count: int,
     topic_counts: Counter,
+    filter_confidence_counts: Counter | None = None,
     sampled_matched: Sequence[Mapping[str, Any]],
     sampled_fallback: Sequence[Mapping[str, Any]],
     dominance: tuple[str, float] | None,
@@ -135,6 +146,10 @@ def build_audit_markdown(
         "## Topic dominance check",
         "",
         _format_dominance_section(dominance, dominance_threshold),
+        "",
+        "## Filter confidence",
+        "",
+        _format_filter_confidence_table(filter_confidence_counts or Counter()),
         "",
         f"## Sampled matched records (up to {sample_size})",
         "",
@@ -216,6 +231,7 @@ def _format_record_samples(
         graph_path = record.get("graph_path")
         graph_line = f"`{graph_path}`" if graph_path else "_none_"
         matched_terms = _format_matched_terms(record.get("matched_terms"))
+        confidence = str(record.get("filter_confidence") or "_not available_")
 
         blocks.append(
             "\n".join(
@@ -223,6 +239,7 @@ def _format_record_samples(
                     f"### {rid} — {topic} ({status})",
                     "",
                     f"- **Question:** {question}",
+                    f"- **Filter confidence:** {confidence}",
                     f"- **Matched terms:** {matched_terms}",
                     f"- **Answer:** {answer or '_(empty)_'}",
                     f"- **Graph:** {graph_line}",
@@ -243,3 +260,15 @@ def _format_matched_terms(value: Any) -> str:
         return "_none_"
 
     return ", ".join(f"`{term}`" for term in terms)
+
+
+def _format_filter_confidence_table(counts: Counter) -> str:
+    """Render a filter-confidence summary table if rows include it."""
+
+    if not counts:
+        return "_No filter confidence labels present._"
+
+    rows = ["| Filter confidence | Count |", "| --- | ---: |"]
+    for label, count in sorted(counts.items(), key=lambda item: (-item[1], item[0])):
+        rows.append(f"| {label} | {count} |")
+    return "\n".join(rows)

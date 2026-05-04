@@ -205,6 +205,9 @@ def run_batch(
         matched_terms = record.get("matched_terms")
         if isinstance(matched_terms, list):
             row["matched_terms"] = list(matched_terms)
+        filter_confidence = record.get("filter_confidence")
+        if isinstance(filter_confidence, str):
+            row["filter_confidence"] = filter_confidence
         if mermaid_dir is not None:
             row["mermaid_path"] = mermaid_path
         results.append(row)

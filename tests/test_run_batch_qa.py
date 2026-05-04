@@ -67,6 +67,7 @@ class RunBatchTests(unittest.TestCase):
                         "id": "case-001",
                         "question": "What causes myocardial infarction?",
                         "matched_terms": ["myocardial infarction"],
+                        "filter_confidence": "high_confidence",
                     },
                     {
                         "id": "case-002",
@@ -96,6 +97,7 @@ class RunBatchTests(unittest.TestCase):
             self.assertEqual(first["status"], "matched")
             self.assertGreater(first["match_score"], 0)
             self.assertEqual(first["matched_terms"], ["myocardial infarction"])
+            self.assertEqual(first["filter_confidence"], "high_confidence")
             self.assertEqual(first["graph_path"], str(graphs_dir / "case-001.json"))
             self.assertTrue(Path(first["graph_path"]).exists())
             self.assertEqual(
@@ -310,6 +312,7 @@ class MainTests(unittest.TestCase):
             self.assertEqual(len(fallback), 2)
             self.assertIn("match_score", results[0])
             self.assertIn("matched_terms", results[0])
+            self.assertIn("filter_confidence", results[0])
 
     def test_main_reports_missing_input(self) -> None:
         with TemporaryDirectory() as tmp:

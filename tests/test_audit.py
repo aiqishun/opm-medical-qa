@@ -10,6 +10,7 @@ from random import Random
 from evaluation.audit import (
     DEFAULT_DOMINANCE_THRESHOLD,
     build_audit_markdown,
+    filter_confidence_frequency,
     find_dominant_topic,
     sample_records,
     topic_frequency,
@@ -25,6 +26,7 @@ def _matched(
     answer="A.",
     graph_path=None,
     matched_terms=None,
+    filter_confidence=None,
 ):
     return {
         "id": rid,
@@ -35,6 +37,7 @@ def _matched(
         "reasoning_path": [],
         "graph_path": graph_path,
         "matched_terms": matched_terms,
+        "filter_confidence": filter_confidence,
         "status": "matched",
     }
 
@@ -69,6 +72,22 @@ class TopicFrequencyTests(unittest.TestCase):
 
     def test_empty_input(self) -> None:
         self.assertEqual(topic_frequency([]), Counter())
+
+
+class FilterConfidenceFrequencyTests(unittest.TestCase):
+    def test_counts_filter_confidence_labels(self) -> None:
+        results = [
+            _matched("angina", filter_confidence="high_confidence"),
+            _matched("arrhythmia", filter_confidence="high_confidence"),
+            _matched("heart failure", filter_confidence="strict"),
+            _fallback(),
+        ]
+
+        counts = filter_confidence_frequency(results)
+
+        self.assertEqual(counts["high_confidence"], 2)
+        self.assertEqual(counts["strict"], 1)
+        self.assertNotIn("None", counts)
 
 
 class FindDominantTopicTests(unittest.TestCase):
@@ -218,11 +237,13 @@ class BuildAuditMarkdownTests(unittest.TestCase):
                     answer="Hypertension can result from increased vascular resistance.",
                     graph_path="outputs/graphs/case-001.json",
                     matched_terms=["hypertension", "blood pressure"],
+                    filter_confidence="broad",
                 )
             ],
         )
         self.assertIn("### case-001 — hypertension (matched)", md)
         self.assertIn("**Question:** What causes hypertension?", md)
+        self.assertIn("**Filter confidence:** broad", md)
         self.assertIn("**Matched terms:** `hypertension`, `blood pressure`", md)
         self.assertIn("**Answer:** Hypertension can result from", md)
         self.assertIn("`outputs/graphs/case-001.json`", md)
@@ -230,8 +251,23 @@ class BuildAuditMarkdownTests(unittest.TestCase):
     def test_sampled_fallback_block_shows_none_for_graph(self) -> None:
         md = self._build(sampled_fallback=[_fallback(rid="fb-001", question="???")])
         self.assertIn("### fb-001 — _(none)_ (fallback)", md)
+        self.assertIn("**Filter confidence:** _not available_", md)
         self.assertIn("**Matched terms:** _not available_", md)
         self.assertIn("**Graph:** _none_", md)
+
+    def test_filter_confidence_section_renders_counts(self) -> None:
+        md = self._build(
+            filter_confidence_counts=Counter({"high_confidence": 3, "strict": 1})
+        )
+
+        self.assertIn("## Filter confidence", md)
+        self.assertIn("| high_confidence | 3 |", md)
+        self.assertIn("| strict | 1 |", md)
+
+    def test_filter_confidence_section_handles_missing_labels(self) -> None:
+        md = self._build()
+
+        self.assertIn("_No filter confidence labels present._", md)
 
     def test_empty_samples_show_friendly_messages(self) -> None:
         md = self._build()
