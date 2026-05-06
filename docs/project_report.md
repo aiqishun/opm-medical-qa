@@ -372,12 +372,21 @@ matcher's behavior in deployment.
   hand-built scaffold for prototype testing. It has not been reviewed by
   clinicians, is not aligned to any clinical guideline, and must not be used
   for diagnosis, triage, or clinical decision-making.
-- **Hand-built, narrow knowledge base.** 12 cardiology topics with
+- **Hand-built, narrow knowledge base.** 21 cardiology topics with
   illustrative reasoning paths and OPM elements. Coverage outside these
   topics is by construction nil.
-- **Simple matching strategy.** Substring phrase scoring plus content-token
-  overlap. No embeddings, no LLM, no learned scoring; consequently small
-  rephrasings can fall back unexpectedly.
+- **Simple core matching strategy.** Substring phrase scoring plus
+  content-token overlap. The QA reasoner itself uses no embeddings, no LLM,
+  and no learned scoring; consequently small rephrasings can fall back
+  unexpectedly.
+- **Optional LLM filter is audit-only.** `scripts/llm_filter_medqa.py` can add
+  second-stage topic relevance metadata for locally held MedQA-derived
+  candidates, but it is not part of the answer generator, is not clinically
+  validated, and must not be interpreted as a medical accuracy measure.
+- **Optional LLM route audit is qualitative.** `scripts/llm_route_audit.py`
+  can inspect OPM `matched_topic` decisions and label likely routing-error
+  patterns, but it is a triage aid for human review rather than an accuracy
+  benchmark or clinical validation.
 - **Simplified OPM representation.** Only four link relationships are used
   and the JSON export shape is bespoke. This is **not** a standard-compliant
   OPM serialization; it is a compact prototype shape chosen for
@@ -386,6 +395,134 @@ matcher's behavior in deployment.
   qualitative differences on this specific synthetic sample. It is not a
   benchmark and must not be interpreted as evidence of superiority over any
   other approach on real data.
+
+## Manual Evaluation Export
+
+For qualitative review, `scripts/export_manual_eval_sample.py` can sample a
+batch QA results JSONL and write two local artifacts:
+
+- an annotation JSONL with nullable manual fields
+  (`manual_is_cardiology_relevant`, `manual_topic_correct`,
+  `manual_expected_topic`, `manual_notes`),
+- a Markdown checklist with the question, matched topic, status, matched
+  terms, filter confidence, answer preview, graph path, and blank annotation
+  fields.
+
+Example:
+
+```bash
+python scripts/export_manual_eval_sample.py \
+    --input experiments/results/real_medqa_high_confidence_batch_qa_results.jsonl \
+    --output-jsonl experiments/manual_eval/high_confidence_sample_100.jsonl \
+    --output-md experiments/manual_eval/high_confidence_sample_100.md \
+    --sample-size 100 \
+    --seed 42
+```
+
+This is a manual/qualitative assessment aid only. It does not compute
+accuracy, does not validate clinical correctness, and does not constitute a
+full MedQA evaluation. The output path is git-ignored because local
+real-data-derived samples may include dataset text.
+
+## Optional LLM-Assisted Filtering
+
+For local audit/triage of real MedQA-derived candidate rows, the repository
+includes an optional second-stage classifier:
+
+```bash
+python scripts/llm_filter_medqa.py \
+    --input data/processed/medqa_cardiology_real_high_confidence.jsonl \
+    --output data/processed/medqa_cardiology_llm_filtered.jsonl \
+    --relevant-output data/processed/medqa_cardiology_llm_relevant.jsonl \
+    --summary experiments/results/llm_filter_summary.md \
+    --model gpt-4o-mini \
+    --limit 50 \
+    --dry-run
+```
+
+`--dry-run` prints the prompt and a small record preview without making an API
+call. A real run requires a local `OPENAI_API_KEY` and should usually start
+with `--limit 20` or `--limit 50` before processing a larger file.
+
+The script preserves each input row and adds:
+
+- `llm_is_cardiology_relevant`
+- `llm_primary_topic`
+- `llm_confidence`
+- `llm_is_incidental_history_only`
+- `llm_reason`
+- `llm_model`
+
+If `--relevant-output` is supplied, the script writes an additional JSONL
+containing only records where `llm_is_cardiology_relevant` is `true` and
+`llm_is_incidental_history_only` is `false`. The summary includes this path
+and the count of relevant-only rows written.
+
+The prompt asks the model to distinguish the main tested concept from
+cardiology terms that appear only in past medical history, medication lists,
+vital signs, or incidental context. The implementation uses structured output
+for the OpenAI Responses API, retries one failed or malformed classification
+once, and records row-level error metadata if classification still fails.
+
+This feature is optional and should be used only to prioritize human review of
+candidate rows. It does not generate medical answers, does not claim medical
+accuracy, and does not constitute a benchmark result. Real MedQA-derived LLM
+outputs under `data/processed/` or `experiments/` are local artifacts and must
+not be committed.
+
+## Optional LLM Topic Routing Audit
+
+Manual review can reveal a second class of errors after relevance filtering:
+the row is cardiology-adjacent, but the OPM `matched_topic` is not the primary
+tested concept. Examples include past-medical-history distraction, family
+history distraction, vignette distraction, manifestation-versus-cause errors,
+temporal state-transition failures, anatomy/laterality failures, and physical
+sign recognition failures.
+
+The optional route-audit script reviews batch QA results:
+
+```bash
+python scripts/llm_route_audit.py \
+    --input experiments/results/llm_relevant_batch_qa_results.jsonl \
+    --output experiments/results/llm_route_audit_100.jsonl \
+    --summary experiments/results/llm_route_audit_summary_100.md \
+    --model gpt-5.4-nano \
+    --limit 100 \
+    --dry-run
+```
+
+`--dry-run` prints the prompt and a small preview without calling the API. A
+real run requires a local `OPENAI_API_KEY`. For each record, the script sends
+only the question, current `matched_topic`, `matched_terms`, and generated
+answer.
+
+The model returns structured output:
+
+- `primary_tested_concept`
+- `is_current_topic_acceptable`
+- `recommended_topic`
+- `is_out_of_scope_for_current_kb`
+- `error_type`
+- `evidence_sentence`
+- `short_reason`
+- `confidence`
+
+The supported `error_type` values are:
+`past_medical_history_distraction`, `family_history_distraction`,
+`vignette_distraction`, `manifestation_vs_cause`,
+`generic_downstream_outcome`, `physical_sign_recognition_failure`,
+`anatomy_laterality_failure`, `temporal_state_transition_failure`,
+`medication_management_focus`, `correct_or_acceptable`, and `other`.
+
+The script uses structured output for the OpenAI Responses API, retries one
+failed or malformed audit once, writes row-level error metadata if audit still
+fails, and summarizes acceptable/unacceptable route counts, out-of-scope
+recommendations, and error-type frequencies.
+
+This is a qualitative audit/triage layer only. It does not generate medical
+answers, does not claim medical accuracy, and does not produce a benchmark
+result. Real MedQA-derived route-audit outputs under `experiments/` are local
+artifacts and must not be committed.
 
 ## Future Work
 

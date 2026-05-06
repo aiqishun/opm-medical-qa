@@ -60,6 +60,8 @@ cardiology prototype with mock knowledge and explicit structured output.
 | CLI demos | `scripts/run_qa.py` | Parse a question, load the KB, run QA, print structured output |
 | Batch experiments | `scripts/run_batch_qa.py` | Run the reasoner over a JSONL file and save per-question results plus OPM graphs |
 | MedQA placeholder preprocessing | `scripts/prepare_medqa.py` | Filter a JSONL file for cardiology-related examples using broad, strict, or high-confidence modes; writes `matched_terms` and `filter_confidence` for audit |
+| Optional LLM filtering | `scripts/llm_filter_medqa.py` | Use a local `OPENAI_API_KEY` to add second-stage cardiology relevance metadata for audit/triage of locally held MedQA-derived candidates |
+| Optional LLM route audit | `scripts/llm_route_audit.py` | Use a local `OPENAI_API_KEY` to audit whether OPM `matched_topic` values match the question's primary tested concept |
 | MedQA schema inspection | `scripts/inspect_medqa_schema.py` | Summarize a local JSONL file's fields and print a small redacted preview |
 | Data helpers | `src/data_io.py` | Read and write JSON/JSONL files with friendly errors |
 | Topic model | `src/reasoning/topic.py` | Load and validate cardiology topic records |
@@ -606,6 +608,110 @@ or `tetralogy of Fallot`.
 Every filtered output row includes `matched_terms` and `filter_confidence` so
 sampled records can be audited later.
 
+### Optional LLM-assisted cardiology filtering
+
+Keyword filtering can still over-select records where cardiology terms appear
+only in past medical history or incidental context. For local audit/triage, an
+optional second-stage OpenAI classifier can add structured relevance metadata:
+
+```bash
+python scripts/llm_filter_medqa.py \
+    --input data/processed/medqa_cardiology_real_high_confidence.jsonl \
+    --output data/processed/medqa_cardiology_llm_filtered.jsonl \
+    --relevant-output data/processed/medqa_cardiology_llm_relevant.jsonl \
+    --summary experiments/results/llm_filter_summary.md \
+    --model gpt-4o-mini \
+    --limit 50 \
+    --dry-run
+```
+
+Use `--dry-run` first to print the prompt and a small preview without calling
+the API. To run the classifier, set a local API key and omit `--dry-run`:
+
+```bash
+export OPENAI_API_KEY=...
+python scripts/llm_filter_medqa.py \
+    --input data/processed/medqa_cardiology_real_high_confidence.jsonl \
+    --output data/processed/medqa_cardiology_llm_filtered.jsonl \
+    --relevant-output data/processed/medqa_cardiology_llm_relevant.jsonl \
+    --summary experiments/results/llm_filter_summary.md \
+    --model gpt-4o-mini \
+    --limit 50
+```
+
+Each output row preserves the input record and adds:
+
+- `llm_is_cardiology_relevant`
+- `llm_primary_topic`
+- `llm_confidence`
+- `llm_is_incidental_history_only`
+- `llm_reason`
+- `llm_model`
+
+This layer is optional, uses structured model output when calling the OpenAI
+Responses API, retries one failed or malformed response once, and records
+per-row error metadata when a classification cannot be obtained.
+
+When `--relevant-output` is provided, the script also writes a second JSONL
+containing only rows where `llm_is_cardiology_relevant` is `true` and
+`llm_is_incidental_history_only` is `false`. The Markdown summary records the
+relevant-only output path and the number of rows written there.
+
+> **Important:** LLM-filtered real MedQA-derived outputs are local artifacts
+> only. Do not commit them. This script is for dataset audit/triage and topic
+> routing review, not medical answer generation, medical accuracy validation,
+> or clinical decision support.
+
+### Optional LLM-assisted topic routing audit
+
+After LLM relevance filtering and batch QA, remaining errors may be topic
+routing errors rather than broad cardiology-filtering errors. The optional
+route-audit script asks an OpenAI model to identify the primary tested concept
+and judge whether the current OPM `matched_topic` is acceptable:
+
+```bash
+python scripts/llm_route_audit.py \
+    --input experiments/results/llm_relevant_batch_qa_results.jsonl \
+    --output experiments/results/llm_route_audit_100.jsonl \
+    --summary experiments/results/llm_route_audit_summary_100.md \
+    --model gpt-5.4-nano \
+    --limit 100 \
+    --dry-run
+```
+
+Use `--dry-run` first to print the prompt and a small preview without calling
+the API. A real run requires a local `OPENAI_API_KEY` and omits `--dry-run`.
+
+For each input row, the script sends only `question`, current `matched_topic`,
+`matched_terms`, and `answer`. Each output row preserves the input record and
+adds:
+
+- `primary_tested_concept`
+- `is_current_topic_acceptable`
+- `recommended_topic`
+- `is_out_of_scope_for_current_kb`
+- `error_type`
+- `evidence_sentence`
+- `short_reason`
+- `confidence`
+- `route_audit_model`
+
+`error_type` is one of: `past_medical_history_distraction`,
+`family_history_distraction`, `vignette_distraction`,
+`manifestation_vs_cause`, `generic_downstream_outcome`,
+`physical_sign_recognition_failure`, `anatomy_laterality_failure`,
+`temporal_state_transition_failure`, `medication_management_focus`,
+`correct_or_acceptable`, or `other`.
+
+The Markdown summary includes counts for acceptable/unacceptable current
+topics, out-of-scope recommended topics, failures/skips, and error-type
+frequencies.
+
+> **Important:** Route-audit outputs generated from real MedQA-derived rows
+> are local artifacts only. Do not commit them. This audit is a qualitative
+> routing review aid, not medical answer generation, medical accuracy
+> validation, or a benchmark result.
+
 No full MedQA evaluation is included or claimed.
 
 ## Batch Experiments
@@ -834,6 +940,35 @@ Wrote audit report to: experiments/results/real_medqa_audit.md
 > performance. Use the sampled rows to read questions and answers by hand
 > before drawing any conclusions.
 
+## Manual Evaluation Export
+
+`scripts/export_manual_eval_sample.py` creates a small, deterministic random
+sample from a batch QA results JSONL for human annotation. It writes both an
+annotation-ready JSONL file and a Markdown checklist.
+
+```bash
+python scripts/export_manual_eval_sample.py \
+    --input experiments/results/real_medqa_high_confidence_batch_qa_results.jsonl \
+    --output-jsonl experiments/manual_eval/high_confidence_sample_100.jsonl \
+    --output-md experiments/manual_eval/high_confidence_sample_100.md \
+    --sample-size 100 \
+    --seed 42
+```
+
+The JSONL includes nullable manual annotation fields:
+
+- `manual_is_cardiology_relevant`
+- `manual_topic_correct`
+- `manual_expected_topic`
+- `manual_notes`
+
+The Markdown file provides checkboxes and blank fields for qualitative review.
+This workflow is for manual assessment of topic relevance and routing behavior;
+it is **not** an automatic accuracy metric, does **not** claim medical
+correctness, and is **not** a full MedQA evaluation. Outputs under
+`experiments/manual_eval/` are git-ignored because they may contain local
+MedQA-derived content.
+
 ## Tests
 
 Run the test suite from the project root:
@@ -848,7 +983,7 @@ using Python 3.11.
 Current local status:
 
 ```text
-Ran 243 tests
+Ran 283 tests
 OK
 ```
 
@@ -863,9 +998,9 @@ keyword-only baseline matcher and the `run_baseline_comparison.py` script
 (per-question row shape, count aggregations, divergence between baseline and
 OPM, missing input/KB error reporting), the qualitative batch-audit module
 and the `audit_batch_results.py` script (sampling determinism, dominance
-warning above 40%, friendly empty-input rendering, error reporting), CLI
-output, the placeholder MedQA preprocessing script, and the local MedQA
-schema inspection script.
+warning above 40%, friendly empty-input rendering, error reporting), manual
+evaluation sample export, CLI output, the placeholder MedQA preprocessing
+script, and the local MedQA schema inspection script.
 
 ## Roadmap
 

@@ -25,6 +25,8 @@ dist/
 # Research outputs
 experiments/results/*
 !experiments/results/.gitkeep
+experiments/manual_eval/*
+!experiments/manual_eval/.gitkeep
 outputs/graphs/*
 !outputs/graphs/.gitkeep
 data/raw/*
