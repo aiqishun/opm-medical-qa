@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Summarize the structured manual audit CSV.
 
-Reads ``annotations/manual_audit_baseline_v2.csv`` and prints:
+Reads ``annotations/manual_audit_baseline_v2.csv`` by default and prints:
 
 - total number of samples
 - distribution of ``cardiology_relevance``
@@ -40,12 +40,27 @@ DISTRIBUTION_COLUMNS = (
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
+        "--input",
+        type=Path,
+        default=None,
+        help=f"Path to the audit CSV (default: {DEFAULT_CSV.relative_to(PROJECT_ROOT)}).",
+    )
+    parser.add_argument(
         "--csv",
         type=Path,
-        default=DEFAULT_CSV,
-        help=f"Path to the audit CSV (default: {DEFAULT_CSV}).",
+        default=None,
+        help="Deprecated alias for --input.",
     )
     return parser.parse_args()
+
+
+def resolve_input_path(args: argparse.Namespace) -> Path:
+    """Resolve the selected audit CSV path."""
+
+    csv_path = args.input or args.csv or DEFAULT_CSV
+    if not csv_path.is_absolute():
+        csv_path = PROJECT_ROOT / csv_path
+    return csv_path
 
 
 def load_rows(csv_path: Path) -> list[dict[str, str]]:
@@ -81,9 +96,15 @@ def find_unclear_rows(rows: list[dict[str, str]]) -> list[tuple[str, list[str]]]
 
 def main() -> int:
     args = parse_args()
-    rows = load_rows(args.csv)
+    csv_path = resolve_input_path(args)
+    rows = load_rows(csv_path)
 
-    print(f"# Manual audit summary  ({args.csv.relative_to(PROJECT_ROOT)})")
+    try:
+        display_path = csv_path.relative_to(PROJECT_ROOT)
+    except ValueError:
+        display_path = csv_path
+
+    print(f"# Manual audit summary  ({display_path})")
     print(f"\nTotal samples: {len(rows)}")
 
     for column in DISTRIBUTION_COLUMNS:
