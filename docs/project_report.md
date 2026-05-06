@@ -359,6 +359,57 @@ These interpretations are properties of this specific synthetic sample. They
 are not a statement about MedQA, real clinical questions, or any other
 matcher's behavior in deployment.
 
+## Manual Evaluation of LLM-Supervised Cardiology Sample Filtering
+
+To evaluate whether the optional LLM-supervised filtering stage improves the
+quality of candidate cardiology samples, two completed manual audit files were
+compared in `annotations/manual_audit_comparison_report.md`. The purpose of
+this audit was not to measure answer accuracy, but to inspect whether the
+selected samples were semantically relevant to cardiology and whether their
+matched topics were usable for downstream dataset construction and error
+analysis.
+
+The comparison setup used:
+
+- `baseline_no_llm`: 100 manually audited samples from
+  `annotations/manual_audit_baseline_v2.csv`
+- `llm_supervised`: 100 manually audited samples from
+  `annotations/manual_audit_llm_supervised_v1.csv`
+- the same 13-column annotation schema for both files
+
+| Metric | baseline_no_llm | llm_supervised | Delta |
+| --- | ---: | ---: | ---: |
+| `topic_correctness` correct | 3 (3.0%) | 6 (6.0%) | +3.0 pp |
+| `topic_correctness` correct + partial | 33 (33.0%) | 59 (59.0%) | +26.0 pp |
+| `topic_correctness` incorrect | 67 (67.0%) | 41 (41.0%) | -26.0 pp |
+| `keep_for_cardiology_dataset` yes | 56 (56.0%) | 88 (88.0%) | +32.0 pp |
+| `error_type` out_of_scope | 12 (12.0%) | 0 (0.0%) | -12.0 pp |
+| `error_type` past_history_distraction | 17 (17.0%) | 9 (9.0%) | -8.0 pp |
+| `error_type` manifestation_vs_cause | 11 (11.0%) | 0 (0.0%) | -11.0 pp |
+| `error_type` vague_topic | 15 (15.0%) | 27 (27.0%) | +12.0 pp |
+
+中文解读：LLM supervision 明显提升了样本的语义相关性和数据集可用性。
+`keep_for_cardiology_dataset` 的 yes 比例从 56.0% 升至 88.0%，说明经过
+LLM 辅助筛选后，更多样本可以保留用于心血管数据集构建。主要收益来自
+incorrect match 的下降，以及 partial match 的上升：`topic_correctness`
+incorrect 从 67.0% 降至 41.0%，而 correct + partial 从 33.0% 升至
+59.0%。这说明系统更常找到与心血管主考点相关的方向，但提升主要落在
+partial match，而不是完全精确匹配。
+
+同时，fully correct matching 仍然偏低，correct 只从 3.0% 升至 6.0%。
+`vague_topic` 错误从 15.0% 增至 27.0%，表明 LLM supervision 虽然减少了
+out_of_scope、past_history_distraction 和 manifestation_vs_cause 等明显错误，
+但在细粒度主题识别上仍然不稳定：系统能判断“这大概是心血管相关”，却常
+停留在过宽、过泛或不够贴近真实主考点的主题层级。
+
+This result reinforces the need for OPM/OPL-based explainable graph
+verification. LLM supervision can improve candidate selection, but the manual
+audit shows that relevance alone is insufficient: downstream verification
+should inspect whether the selected topic, reasoning path, OPM graph elements,
+and OPL-readable relationships actually align with the primary tested concept.
+That graph-level check is the place where the prototype can turn a broad
+semantic match into an auditable explanation structure.
+
 ## Limitations
 
 - **Synthetic sample only.** Every input question, option, and explanation in
