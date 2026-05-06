@@ -1,0 +1,50 @@
+# Manual audit summary  (annotations/manual_audit_baseline_v2.csv)
+
+Total samples: 100
+
+## cardiology_relevance
+  yes                               59  ( 59.0%)
+  partial                           24  ( 24.0%)
+  no                                17  ( 17.0%)
+
+## topic_correctness
+  incorrect                         67  ( 67.0%)
+  partial                           30  ( 30.0%)
+  correct                            3  (  3.0%)
+
+## matched_term_role
+  distractor                        26  ( 26.0%)
+  past_history                      22  ( 22.0%)
+  manifestation                     14  ( 14.0%)
+  prerequisite                      11  ( 11.0%)
+  primary_disease                    9  (  9.0%)
+  family_history                     5  (  5.0%)
+  physical_sign                      4  (  4.0%)
+  treatment_context                  4  (  4.0%)
+  complication                       2  (  2.0%)
+  out_of_scope                       2  (  2.0%)
+  calculation_context                1  (  1.0%)
+
+## error_type
+  partial_match                     28  ( 28.0%)
+  past_history_distraction          17  ( 17.0%)
+  vague_topic                       15  ( 15.0%)
+  out_of_scope                      12  ( 12.0%)
+  manifestation_vs_cause            11  ( 11.0%)
+  family_history_distraction         4  (  4.0%)
+  treatment_context_confusion        4  (  4.0%)
+  anatomy_failure                    3  (  3.0%)
+  correct                            3  (  3.0%)
+  physical_sign_failure              2  (  2.0%)
+  calculation_context_confusion      1  (  1.0%)
+
+## keep_for_cardiology_dataset
+  yes                               56  ( 56.0%)
+  no                                44  ( 44.0%)
+
+## keep_for_error_analysis
+  yes                               97  ( 97.0%)
+  no                                 3  (  3.0%)
+
+## Rows with `unclear` values
+  (none)
