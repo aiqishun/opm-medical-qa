@@ -359,56 +359,142 @@ These interpretations are properties of this specific synthetic sample. They
 are not a statement about MedQA, real clinical questions, or any other
 matcher's behavior in deployment.
 
-## Manual Evaluation of LLM-Supervised Cardiology Sample Filtering
+## Manual Evaluation and Error Analysis
 
-To evaluate whether the optional LLM-supervised filtering stage improves the
-quality of candidate cardiology samples, two completed manual audit files were
-compared in `annotations/manual_audit_comparison_report.md`. The purpose of
-this audit was not to measure answer accuracy, but to inspect whether the
-selected samples were semantically relevant to cardiology and whether their
-matched topics were usable for downstream dataset construction and error
-analysis.
+Two completed manual audit files were compared to assess whether the optional
+LLM-supervised filtering stage improves candidate selection for cardiology QA
+construction. The audit evaluates semantic relevance, topic-match quality, and
+dataset usability; it is not an answer-accuracy benchmark and does not provide
+clinical validation. The source artifacts are
+`annotations/manual_audit_baseline_v2.csv`,
+`annotations/manual_audit_llm_supervised_v1.csv`, and the generated comparison
+report `annotations/manual_audit_comparison_report.md`.
 
-The comparison setup used:
+The comparison setup used `baseline_no_llm` with 100 manually audited samples
+and `llm_supervised` with 100 manually audited samples. Both files use the
+same 13-column annotation schema, allowing direct comparison of relevance,
+topic correctness, error type, and keep/discard decisions.
 
-- `baseline_no_llm`: 100 manually audited samples from
-  `annotations/manual_audit_baseline_v2.csv`
-- `llm_supervised`: 100 manually audited samples from
-  `annotations/manual_audit_llm_supervised_v1.csv`
-- the same 13-column annotation schema for both files
+### Overall comparison metrics
 
-| Metric | baseline_no_llm | llm_supervised | Delta |
+| Metric | baseline_no_llm | llm_supervised | Change |
 | --- | ---: | ---: | ---: |
-| `topic_correctness` correct | 3 (3.0%) | 6 (6.0%) | +3.0 pp |
+| `keep_for_cardiology_dataset` yes | 56 (56.0%) | 88 (88.0%) | +32.0 pp |
 | `topic_correctness` correct + partial | 33 (33.0%) | 59 (59.0%) | +26.0 pp |
 | `topic_correctness` incorrect | 67 (67.0%) | 41 (41.0%) | -26.0 pp |
-| `keep_for_cardiology_dataset` yes | 56 (56.0%) | 88 (88.0%) | +32.0 pp |
-| `error_type` out_of_scope | 12 (12.0%) | 0 (0.0%) | -12.0 pp |
-| `error_type` past_history_distraction | 17 (17.0%) | 9 (9.0%) | -8.0 pp |
-| `error_type` manifestation_vs_cause | 11 (11.0%) | 0 (0.0%) | -11.0 pp |
-| `error_type` vague_topic | 15 (15.0%) | 27 (27.0%) | +12.0 pp |
+| `topic_correctness` correct only | 3 (3.0%) | 6 (6.0%) | +3.0 pp |
 
-中文解读：LLM supervision 明显提升了样本的语义相关性和数据集可用性。
-`keep_for_cardiology_dataset` 的 yes 比例从 56.0% 升至 88.0%，说明经过
-LLM 辅助筛选后，更多样本可以保留用于心血管数据集构建。主要收益来自
-incorrect match 的下降，以及 partial match 的上升：`topic_correctness`
-incorrect 从 67.0% 降至 41.0%，而 correct + partial 从 33.0% 升至
-59.0%。这说明系统更常找到与心血管主考点相关的方向，但提升主要落在
-partial match，而不是完全精确匹配。
+These results indicate that LLM supervision substantially improves cardiology
+relevance and downstream dataset usability. The proportion of samples kept for
+the cardiology dataset increased from 56.0% to 88.0%, and the usable
+topic-match band (`correct + partial`) increased from 33.0% to 59.0%. At the
+same time, incorrect topic matches decreased from 67.0% to 41.0%. However,
+strictly correct matching remains low, rising only from 3.0% to 6.0%, so the
+main gain is better semantic routing rather than reliably exact topic
+identification.
 
-同时，fully correct matching 仍然偏低，correct 只从 3.0% 升至 6.0%。
-`vague_topic` 错误从 15.0% 增至 27.0%，表明 LLM supervision 虽然减少了
-out_of_scope、past_history_distraction 和 manifestation_vs_cause 等明显错误，
-但在细粒度主题识别上仍然不稳定：系统能判断“这大概是心血管相关”，却常
-停留在过宽、过泛或不够贴近真实主考点的主题层级。
+### Major error reduction
 
-This result reinforces the need for OPM/OPL-based explainable graph
-verification. LLM supervision can improve candidate selection, but the manual
-audit shows that relevance alone is insufficient: downstream verification
-should inspect whether the selected topic, reasoning path, OPM graph elements,
-and OPL-readable relationships actually align with the primary tested concept.
-That graph-level check is the place where the prototype can turn a broad
-semantic match into an auditable explanation structure.
+| Error type | baseline_no_llm | llm_supervised | Change |
+| --- | ---: | ---: | ---: |
+| `out_of_scope` | 12 (12.0%) | 0 (0.0%) | -12.0 pp |
+| `manifestation_vs_cause` | 11 (11.0%) | 0 (0.0%) | -11.0 pp |
+| `past_history_distraction` | 17 (17.0%) | 9 (9.0%) | -8.0 pp |
+
+The largest improvements occur in severe mismatch categories. Out-of-scope
+matches were eliminated in this 100-sample audit, and
+manifestation-versus-cause errors also dropped from 11.0% to 0.0%. Past
+history distraction decreased from 17.0% to 9.0%, suggesting that LLM
+supervision helps separate the primary tested concept from incidental
+cardiology terms in background history.
+
+### Remaining error types
+
+| Error type | baseline_no_llm | llm_supervised | Change |
+| --- | ---: | ---: | ---: |
+| `partial_match` | 28 (28.0%) | 51 (51.0%) | +23.0 pp |
+| `vague_topic` | 15 (15.0%) | 27 (27.0%) | +12.0 pp |
+| `past_history_distraction` | 17 (17.0%) | 9 (9.0%) | -8.0 pp |
+| `treatment_context_confusion` | 4 (4.0%) | 5 (5.0%) | +1.0 pp |
+| `calculation_context_confusion` | 1 (1.0%) | 2 (2.0%) | +1.0 pp |
+
+The remaining error profile shows the tradeoff introduced by LLM supervision:
+the filter removes many severe mismatches, but it often lands on a broad or
+adjacent topic rather than the exact primary concept. `partial_match` rose
+from 28.0% to 51.0%, and `vague_topic` rose from 15.0% to 27.0%. This means
+that LLM supervision improves cardiology relevance and reduces severe mismatch
+errors, but most improvements are partial matches. Therefore, fine-grained
+OPM/OPL-based explainable graph verification is still necessary to verify
+whether the matched topic, reasoning path, OPM graph elements, and OPL-style
+relationships align with the actual tested concept.
+
+Automatically selected case studies for this audit are written to
+`experiments/results/manual_audit_case_studies.md`. They include examples of
+baseline incorrect cases that improved under LLM supervision, persistent
+`partial_match` cases, and persistent `vague_topic` cases.
+
+## Automatic OPM Graph Evaluation
+
+An additional automatic evaluation was conducted to assess the structural
+quality of the exported OPM graph JSON files and their alignment with the
+corresponding QA outputs. The purpose of this evaluation is to quantify graph
+well-formedness, simplified OPM constraint satisfaction, source grounding,
+and answer-graph consistency for the prototype's generated explanation
+artifacts.
+
+The evaluation used `experiments/results/llm_relevant_batch_qa_results.jsonl`
+and `outputs/graphs/llm_relevant_batch/`. In total, 543 graph JSON files were
+evaluated and matched against 546 QA result rows; all 543 graph files had a
+corresponding result row. The full per-sample metrics are written to
+`experiments/results/opm_auto_evaluation_metrics.csv`, with aggregate results
+summarized in `experiments/results/opm_auto_evaluation_summary.md`.
+
+The automatic evaluation covers four categories:
+
+- **Schema validity**: node and edge validity, graph validity, isolated nodes,
+  and duplicate nodes or edges.
+- **OPM constraint satisfaction**: object-process connectivity, state
+  attachment, valid type transitions, and existence of an explanatory path.
+- **Source grounding**: whether object, process, and state labels appear in
+  the question, generated knowledge, explanation, or final answer.
+- **Answer-graph consistency**: whether final-answer concepts are covered by
+  graph labels and supported by graph/path evidence.
+
+| Category | Metric | Mean |
+| --- | --- | ---: |
+| Schema validity | `valid_graph_rate` | 1.0000 |
+| Schema validity | `isolated_node_ratio` | 0.0078 |
+| Schema validity | `duplicate_node_ratio` | 0.0000 |
+| OPM constraint satisfaction | `process_object_connectivity_rate` | 0.9435 |
+| OPM constraint satisfaction | `state_object_attachment_rate` | 0.9509 |
+| OPM constraint satisfaction | `valid_type_transition_rate` | 1.0000 |
+| OPM constraint satisfaction | `explanation_path_rate` | 1.0000 |
+| Source grounding | `object_grounding_rate` | 0.5273 |
+| Source grounding | `process_grounding_rate` | 0.3996 |
+| Source grounding | `state_grounding_rate` | 0.2670 |
+| Source grounding | `overall_grounding_rate` | 0.3980 |
+| Answer-graph consistency | `answer_concept_coverage` | 0.4103 |
+| Answer-graph consistency | `graph_evidence_usage_rate` | 0.3364 |
+| Answer-graph consistency | `path_support_rate` | 1.0000 |
+
+The results indicate strong graph schema validity: node validity, edge
+validity, valid graph rate, and duplicate checks are near perfect, with only a
+small isolated-node ratio. The simplified OPM structural constraints are also
+mostly satisfied, as process-object connectivity and state attachment both
+exceed 0.94 and all evaluated graphs contain an explanatory path. In contrast,
+source grounding is substantially lower, especially for state labels, and the
+final answers are only partially grounded in graph evidence. This suggests
+that the graph generator produces structurally coherent artifacts, but the
+surface correspondence between graph labels, source text, and answer text
+remains incomplete.
+
+This automatic evaluation is heuristic and should not be interpreted as
+clinical validation. Because grounding is based on normalized surface-form
+matching, it may underestimate semantic grounding when the graph uses
+synonyms, paraphrases, or clinically equivalent concepts. Future work should
+therefore improve semantic grounding and graph-grounded answer generation, so
+that final answers are explicitly supported by the OPM/OPL explanation graph
+rather than only loosely associated with it.
 
 ## Limitations
 
