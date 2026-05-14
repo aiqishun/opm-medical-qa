@@ -79,6 +79,53 @@ systematically cite or reuse the full graph structure. Overall, the current
 pipeline is stronger at structural graph generation than explicit span-level
 grounding.
 
+## Manual Sanity Check
+
+To qualitatively validate the automatic evaluation, we performed a small-scale
+manual audit on a stratified sample of 20 QA records drawn from four selection
+buckets (`high_quality`, `low_grounding`, `low_consistency`, `diverse_topics`;
+five records each, see `annotations/manual_sanity_check_20.csv`). For each
+record, a human annotator assigned three categorical labels: `graph_relevance`
+(whether the OPM graph is topically relevant to the case), `path_explainability`
+(whether the reasoning path supports the final answer end-to-end), and
+`main_error_type` (the dominant failure mode, if any).
+
+| Field | Value | Count | Share |
+| --- | --- | ---: | ---: |
+| `graph_relevance` | yes | 10 | 50.0% |
+| `graph_relevance` | partial | 9 | 45.0% |
+| `graph_relevance` | no | 1 | 5.0% |
+| `path_explainability` | yes | 4 | 20.0% |
+| `path_explainability` | partial | 14 | 70.0% |
+| `path_explainability` | no | 2 | 10.0% |
+| `main_error_type` | topic_mismatch | 8 | 40.0% |
+| `main_error_type` | none | 4 | 20.0% |
+| `main_error_type` | over_generalization | 4 | 20.0% |
+| `main_error_type` | weak_grounding | 2 | 10.0% |
+| `main_error_type` | answer_graph_misalignment | 2 | 10.0% |
+
+The manual review shows that nearly all graphs are at least partially relevant
+to the underlying case (19 of 20, 95%), but only 20% of samples are judged
+fully path-explainable; the modal value of `path_explainability` is `partial`
+(70%). The dominant failure mode is `topic_mismatch` (40%), in which the
+matched OPM topic captures a surface finding rather than the case's primary
+mechanism — for example, anchoring on mitral regurgitation when the upstream
+cause is carcinoid syndrome, or on hypertension when the case is actually
+acute limb ischemia from atrial fibrillation. Together with
+`over_generalization` (20%), these two error types account for 60% of the
+sample and characterize a consistent pattern: graphs that are topically
+adjacent but not specific enough to ground the final answer.
+
+These manual findings are consistent with the automatic evaluation. The high
+rate of at-least-partial graph relevance (95%) parallels the strong structural
+and OPM-constraint metrics in Table 1, while the limited full path
+explainability (20%) and the prevalence of `topic_mismatch` and
+`over_generalization` reinforce the same weakness flagged by the automatic
+audit: an overall grounding rate of 0.3980 and an answer concept coverage of
+0.4103. In both views the pipeline reliably produces structurally valid,
+topically adjacent OPM graphs, but the link from graph evidence to the
+case-specific mechanism and final answer remains the principal gap.
+
 # Limitations and Future Work
 
 This evaluation is a heuristic automatic graph-quality audit, not clinical
