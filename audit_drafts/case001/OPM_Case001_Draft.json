@@ -1,0 +1,103 @@
+{
+  "schema_version": "0.1",
+  "case_id": "demo_coronary_001",
+  "case_origin": "synthetic_manual_demonstration",
+  "medqa_question_id": null,
+  "record_date": "2026-11-02",
+  "reference_status": "draft_pending_review",
+  "approved_for_formal_evaluation": false,
+  "source": {
+    "id": "SRC01",
+    "organization": "NHLBI / NIH",
+    "title": "Coronary Heart Disease Causes and Prevention",
+    "url": "https://www.nhlbi.nih.gov/health/coronary-heart-disease/causes",
+    "section": "Plaque buildup",
+    "page_last_updated": "2024-12-27",
+    "assistant_accessed_on": "2026-11-02",
+    "user_verified": false,
+    "user_verified_by": null,
+    "user_verified_on": null,
+    "excerpts": [
+      {
+        "id": "S1",
+        "text": "This can lower or block blood flow to the heart muscle.",
+        "context_summary_zh": "前文讨论斑块积累和动脉变窄；该句给出血流可能降低或阻断。"
+      }
+    ]
+  },
+  "current_opcloud_model": {
+    "transition_id": "T1",
+    "object": "Coronary Blood Flow",
+    "process": "Coronary Occluding",
+    "from_state": "adequate",
+    "to_state": "reduced",
+    "state_owner": "Coronary Blood Flow",
+    "opl": "Coronary Occluding changes Coronary Blood Flow from adequate to reduced.",
+    "essence_in_screenshot": {
+      "object": "informatical",
+      "process": "informatical"
+    },
+    "essence_review_status": "pending"
+  },
+  "evidence_mapping": [
+    {
+      "field": "object",
+      "evidence_ids": [
+        "SRC01/S1"
+      ],
+      "support": "contextual_mapping",
+      "note_zh": "原文讨论流向心肌的血流，命名仍需与选题范围核对。"
+    },
+    {
+      "field": "process",
+      "evidence_ids": [
+        "SRC01/S1"
+      ],
+      "support": "partial_pending_review",
+      "note_zh": "原段落描述斑块积累和动脉变窄，不能直接将其与当前过程名视为完全等价。"
+    },
+    {
+      "field": "from_state",
+      "evidence_ids": [],
+      "support": "demonstration_assumption",
+      "note_zh": "adequate 未在所引段落明确给出。"
+    },
+    {
+      "field": "to_state",
+      "evidence_ids": [
+        "SRC01/S1"
+      ],
+      "support": "possible_outcome_branch",
+      "note_zh": "reduced 对应 lower 分支；来源使用 can 并另有 block 分支。"
+    },
+    {
+      "field": "state_owner",
+      "evidence_ids": [],
+      "support": "current_diagram_annotation",
+      "note_zh": "截图中两个状态属于血流对象，待参考结构复核。"
+    }
+  ],
+  "source_faithful_partial_transition": {
+    "object": "Coronary Blood Flow",
+    "process": null,
+    "from_state": null,
+    "to_state_options": [
+      "reduced",
+      "blocked"
+    ],
+    "modality": "possible",
+    "note_zh": "保存当前证据能支持的部分，未知字段使用 null。"
+  },
+  "review": {
+    "reviewer": null,
+    "review_date": null,
+    "outcome": "pending",
+    "required_actions": [
+      "核对原句及代词指代的前后文",
+      "补充起始状态的明确依据，或保留未知",
+      "确定过程命名和可能结果的适用情境",
+      "核对物理/信息属性",
+      "完成实际人工复核后再建立独立冻结版本"
+    ]
+  }
+}
