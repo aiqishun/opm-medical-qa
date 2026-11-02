@@ -40,6 +40,79 @@ CARDIOLOGY_KEYWORDS: tuple[str, ...] = (
     "blood pressure",
 )
 
+STRICT_CARDIOLOGY_KEYWORDS: tuple[str, ...] = (
+    "myocardial infarction",
+    "angina",
+    "coronary artery disease",
+    "heart failure",
+    "arrhythmia",
+    "cardiac arrest",
+    "valvular disease",
+    "murmur",
+    "ecg",
+    "ekg",
+    "echocardiography",
+    "atrial fibrillation",
+    "ventricular tachycardia",
+    "myocarditis",
+    "pericarditis",
+    "cardiomyopathy",
+    "endocarditis",
+)
+
+HIGH_CONFIDENCE_DISEASE_TERMS: tuple[str, ...] = (
+    "myocardial infarction",
+    "heart failure",
+    "angina",
+    "coronary artery disease",
+    "endocarditis",
+    "myocarditis",
+    "pericarditis",
+    "cardiomyopathy",
+    "atrial fibrillation",
+    "cardiac arrest",
+    "aortic stenosis",
+    "mitral regurgitation",
+    "mitral valve prolapse",
+    "mitral prolapse",
+    "patent ductus arteriosus",
+    "pda",
+    "tetralogy of fallot",
+    "tof",
+    "coarctation of the aorta",
+    "aortic coarctation",
+    "coarctation",
+    "pulmonary embolism",
+    "pulmonary embolus",
+)
+
+HIGH_CONFIDENCE_ECG_TERMS: tuple[str, ...] = ("ecg", "ekg")
+HIGH_CONFIDENCE_ECG_CONTEXT_TERMS: tuple[str, ...] = (
+    "st elevation",
+    "atrial fibrillation",
+    "ventricular tachycardia",
+    "qt prolongation",
+    "absent p waves",
+)
+
+HIGH_CONFIDENCE_MURMUR_TERMS: tuple[str, ...] = ("murmur",)
+HIGH_CONFIDENCE_MURMUR_CONTEXT_TERMS: tuple[str, ...] = (
+    "aortic stenosis",
+    "mitral regurgitation",
+    "valve",
+    "cyanosis",
+    "congenital heart disease",
+    "pda",
+    "vsd",
+    "tetralogy of fallot",
+)
+
+FILTER_MODE_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "broad": CARDIOLOGY_KEYWORDS,
+    "strict": STRICT_CARDIOLOGY_KEYWORDS,
+    "high_confidence": HIGH_CONFIDENCE_DISEASE_TERMS,
+}
+
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -64,6 +137,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help=(
             "Override the default cardiology keyword list. Pass once per keyword "
             "to filter on a custom vocabulary."
+        ),
+    )
+    parser.add_argument(
+        "--filter-mode",
+        choices=sorted(FILTER_MODE_KEYWORDS),
+        default="broad",
+        help=(
+            "Keyword preset to use when --keyword is not provided. 'broad' "
+            "keeps the original inclusive behavior; 'strict' uses more "
+            "topic-specific cardiology terms and avoids generic vital-sign "
+            "triggers; 'high_confidence' adds context rules for ECG/EKG and "
+            "murmur mentions. Defaults to broad."
         ),
     )
     return parser
@@ -94,25 +179,101 @@ def is_cardiology_related(
 ) -> bool:
     """Return True when ``record`` mentions any of ``keywords``."""
 
+    return bool(matched_terms_for_record(record, keywords))
+
+
+def matched_terms_for_record(
+    record: Mapping[str, Any],
+    keywords: Iterable[str] = CARDIOLOGY_KEYWORDS,
+) -> list[str]:
+    """Return the keywords that caused ``record`` to be selected."""
+
+    return _matched_terms_in_text(record_text(record), keywords)
+
+
+def high_confidence_matched_terms(record: Mapping[str, Any]) -> list[str]:
+    """Return high-confidence cardiology terms for ``record``.
+
+    Disease/topic terms can select a record directly. Generic ECG/EKG and
+    murmur mentions only select a record when paired with more specific context
+    terms, reducing false positives from incidental exam or vital-sign text.
+    """
+
     text = record_text(record)
-    return any(keyword.lower() in text for keyword in keywords)
+    matched = _matched_terms_in_text(text, HIGH_CONFIDENCE_DISEASE_TERMS)
+
+    ecg_terms = _matched_terms_in_text(text, HIGH_CONFIDENCE_ECG_TERMS)
+    ecg_context = _matched_terms_in_text(text, HIGH_CONFIDENCE_ECG_CONTEXT_TERMS)
+    if ecg_terms and ecg_context:
+        matched.extend(ecg_terms)
+        matched.extend(ecg_context)
+
+    murmur_terms = _matched_terms_in_text(text, HIGH_CONFIDENCE_MURMUR_TERMS)
+    murmur_context = _matched_terms_in_text(text, HIGH_CONFIDENCE_MURMUR_CONTEXT_TERMS)
+    if murmur_terms and murmur_context:
+        matched.extend(murmur_terms)
+        matched.extend(murmur_context)
+
+    return _deduplicate_terms(matched)
+
+
+def _matched_terms_in_text(text: str, keywords: Iterable[str]) -> list[str]:
+    """Return keywords found in already-normalized searchable text."""
+
+    seen: set[str] = set()
+    matched: list[str] = []
+    for keyword in keywords:
+        normalized = keyword.lower()
+        if normalized and normalized in text and normalized not in seen:
+            matched.append(keyword)
+            seen.add(normalized)
+    return matched
+
+
+def _deduplicate_terms(terms: Iterable[str]) -> list[str]:
+    """Deduplicate terms while preserving first occurrence order."""
+
+    seen: set[str] = set()
+    deduplicated: list[str] = []
+    for term in terms:
+        normalized = term.lower()
+        if normalized not in seen:
+            deduplicated.append(term)
+            seen.add(normalized)
+    return deduplicated
 
 
 def filter_cardiology_records(
     records: Iterable[Mapping[str, Any]],
     keywords: Iterable[str] = CARDIOLOGY_KEYWORDS,
+    filter_confidence: str = "broad",
 ) -> list[dict[str, Any]]:
-    """Return only the records that look cardiology-related."""
+    """Return cardiology-related records with matched keyword evidence."""
 
     keyword_tuple = tuple(keywords)
-    return [dict(record) for record in records if is_cardiology_related(record, keyword_tuple)]
+    filtered: list[dict[str, Any]] = []
+    for record in records:
+        if filter_confidence == "high_confidence":
+            matched_terms = high_confidence_matched_terms(record)
+        else:
+            matched_terms = matched_terms_for_record(record, keyword_tuple)
+        if matched_terms:
+            output_record = dict(record)
+            output_record["matched_terms"] = matched_terms
+            output_record["filter_confidence"] = filter_confidence
+            filtered.append(output_record)
+    return filtered
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """CLI entry point. Returns a process exit code."""
 
     args = _build_parser().parse_args(argv)
-    keywords = tuple(args.keyword) if args.keyword else CARDIOLOGY_KEYWORDS
+    keywords = (
+        tuple(args.keyword)
+        if args.keyword
+        else FILTER_MODE_KEYWORDS[args.filter_mode]
+    )
 
     try:
         records = list(read_jsonl(args.input))
@@ -120,11 +281,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"error: {error}", file=sys.stderr)
         return 1
 
-    filtered = filter_cardiology_records(records, keywords)
+    filtered = filter_cardiology_records(
+        records,
+        keywords,
+        filter_confidence="custom" if args.keyword else args.filter_mode,
+    )
     count = write_jsonl(args.output, filtered)
 
     print(f"Read from: {args.input}")
     print(f"Wrote to: {args.output}")
+    print(f"Filter mode: {args.filter_mode}")
     print(f"Cardiology examples: {count}")
     return 0
 

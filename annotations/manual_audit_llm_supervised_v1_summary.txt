@@ -1,0 +1,41 @@
+# Manual audit summary  (annotations/manual_audit_llm_supervised_v1.csv)
+
+Total samples: 100
+
+## cardiology_relevance
+  yes                               88  ( 88.0%)
+  partial                           12  ( 12.0%)
+
+## topic_correctness
+  partial                           53  ( 53.0%)
+  incorrect                         41  ( 41.0%)
+  correct                            6  (  6.0%)
+
+## matched_term_role
+  primary_disease                   25  ( 25.0%)
+  distractor                        24  ( 24.0%)
+  prerequisite                      17  ( 17.0%)
+  manifestation                     12  ( 12.0%)
+  past_history                      11  ( 11.0%)
+  treatment_context                  7  (  7.0%)
+  calculation_context                2  (  2.0%)
+  complication                       2  (  2.0%)
+
+## error_type
+  partial_match                     51  ( 51.0%)
+  vague_topic                       27  ( 27.0%)
+  past_history_distraction           9  (  9.0%)
+  correct                            6  (  6.0%)
+  treatment_context_confusion        5  (  5.0%)
+  calculation_context_confusion      2  (  2.0%)
+
+## keep_for_cardiology_dataset
+  yes                               88  ( 88.0%)
+  no                                12  ( 12.0%)
+
+## keep_for_error_analysis
+  yes                               94  ( 94.0%)
+  no                                 6  (  6.0%)
+
+## Rows with `unclear` values
+  (none)

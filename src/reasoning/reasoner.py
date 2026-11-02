@@ -39,7 +39,7 @@ class RuleBasedCardiologyReasoner:
         self,
         topics: Iterable[CardiologyTopic],
         matcher: QuestionMatcher | None = None,
-        minimum_match_score: int = 1,
+        minimum_match_score: int = 2,
     ) -> None:
         self._topics: list[CardiologyTopic] = list(topics)
         self._matcher = matcher or QuestionMatcher()
