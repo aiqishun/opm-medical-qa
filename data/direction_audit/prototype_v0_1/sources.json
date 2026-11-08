@@ -1,0 +1,190 @@
+[
+  {
+    "source_id": "SRC_01",
+    "organization": "NHLBI / NIH",
+    "url": "https://www.nhlbi.nih.gov/health/coronary-heart-disease/treatment",
+    "section": "Procedures — percutaneous coronary intervention",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "opens coronary arteries that are narrowed or blocked by the buildup of plaque."
+      }
+    ],
+    "context_paraphrase": "选择 narrowed 分支；open 仅指开放，不表示完全正常，也不声称永久不再狭窄。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_02",
+    "organization": "NHLBI / NIH",
+    "url": "https://www.nhlbi.nih.gov/health/pacemakers/how-it-works",
+    "section": "Traditional transvenous pacemakers — electrodes",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "When your heartbeat is slower than normal, the electrodes deliver electrical impulses to your heart to make it beat normally."
+      }
+    ],
+    "context_paraphrase": "正常心率是该段给出的目标反应；本案例不包含设备失效或未响应分支。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_03",
+    "organization": "American Heart Association",
+    "url": "https://www.heart.org/en/health-topics/arrhythmia/prevention--treatment-of-arrhythmia/cardioversion",
+    "section": "Cardioversion — introductory paragraph; electrical cardioversion",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "If your heart has an irregular (uneven) beat or is beating too fast, cardioversion is a way to restore a regular rhythm."
+      }
+    ],
+    "context_paraphrase": "选择 irregular 而不是 too fast 分支；选择电复律而不是药物复律；不保证每次成功。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_04",
+    "organization": "American Heart Association",
+    "url": "https://www.heart.org/en/health-topics/congenital-heart-defects/about-congenital-heart-defects/aortic-valve-stenosis-avs",
+    "section": "Aortic valve stenosis in children — How can the aortic valve be treated?",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "due to the narrowed valve"
+      },
+      {
+        "excerpt_id": "E2",
+        "text": "The balloon is briefly inflated to widen the valve opening"
+      }
+    ],
+    "context_paraphrase": "摘录由两处短片段组成，需分别定位；wider 是相对增宽，不是完全正常。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_05",
+    "organization": "NHLBI / NIH",
+    "url": "https://www.nhlbi.nih.gov/health/heart-failure/treatment",
+    "section": "Medicines — Left-sided heart failure — medicines removing extra sodium and fluid",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "Medicines that remove extra sodium and fluid from your body"
+      }
+    ],
+    "context_paraphrase": "volume 是对体液量的建模；excessive 对应 extra；reduced 表示量减少，不承诺正常。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_06",
+    "organization": "NHLBI / NIH",
+    "url": "https://www.nhlbi.nih.gov/health/high-blood-pressure/treatment",
+    "section": "Medicines — introductory paragraph",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "When healthy lifestyle changes alone do not control or lower high blood pressure"
+      },
+      {
+        "excerpt_id": "E2",
+        "text": "These medicines act in different ways to lower blood pressure."
+      }
+    ],
+    "context_paraphrase": "初始 high 依据该节适用人群与前一句；lower 是相对降低，不等于正常血压。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_07",
+    "organization": "NHS 111 Wales",
+    "url": "https://111.wales.nhs.uk/Heartfailure/",
+    "section": "Treatment — Devices for heart failure — Cardiac resynchronisation therapy",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "contract out of sync with each other"
+      },
+      {
+        "excerpt_id": "E2",
+        "text": "making the walls of the left ventricle all contract at the same time"
+      }
+    ],
+    "context_paraphrase": "两个短片段分别来自相邻两句；synchronized 是同一时间收缩的解释映射。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_08",
+    "organization": "MedlinePlus / NLM",
+    "url": "https://medlineplus.gov/ency/article/003872.htm",
+    "section": "Definition; How the Test is Performed; Why the Test is Performed",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "Pericardiocentesis is a procedure"
+      },
+      {
+        "excerpt_id": "E2",
+        "text": "remove fluid from the pericardial sac"
+      },
+      {
+        "excerpt_id": "E3",
+        "text": "pericardial fluid accumulation"
+      }
+    ],
+    "context_paraphrase": "起始 accumulated 需结合 Why/Abnormal Results；体液量降低由排液解释映射，不能写成无积液。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_09",
+    "organization": "NHLBI / NIH",
+    "url": "https://www.nhlbi.nih.gov/health/angina/types",
+    "section": "Stable angina",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "The pain usually goes away after you rest for a few minutes or take your angina medicine."
+      }
+    ],
+    "context_paraphrase": "只适用于该段稳定型心绞痛，保留 usually；不外推至不稳定型心绞痛或所有胸痛。",
+    "human_verified": false
+  },
+  {
+    "source_id": "SRC_10",
+    "organization": "NHLBI / NIH",
+    "url": "https://www.nhlbi.nih.gov/health/heart/blood-flow",
+    "section": "Adding oxygen to blood",
+    "assistant_accessed_on": "2026-11-09",
+    "access_timezone": "Asia/Tokyo",
+    "excerpt_fragments": [
+      {
+        "excerpt_id": "E1",
+        "text": "The pulmonary artery then carries the oxygen-poor blood"
+      },
+      {
+        "excerpt_id": "E2",
+        "text": "Your lungs add oxygen to your blood."
+      },
+      {
+        "excerpt_id": "E3",
+        "text": "The oxygen-rich blood returns to your heart"
+      }
+    ],
+    "context_paraphrase": "起始 oxygen poor 来自同段前句；通常生理情境，不声称在肺功能异常时仍然成立。",
+    "human_verified": false
+  }
+]

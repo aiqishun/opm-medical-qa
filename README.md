@@ -16,6 +16,23 @@ keyword matching, and structured OPM output.
 
 ## Overview
 
+### State-direction auditing pilot
+
+An additional source-traceable pilot now compares explicit OPM-style state
+transitions. It contains 10 **non-adjudicated synthetic cases**, 30 controlled
+candidate texts, evidence mappings, a conservative text extractor, direction
+localization, and separate structure/text evaluation. It is a template-based
+engineering check, not a validated medical benchmark. See the
+[protocol and limitations](docs/direction_audit_protocol.md).
+
+~~~bash
+python3 scripts/validate_direction_dataset.py
+python3 scripts/run_direction_audit.py --allow-draft
+~~~
+
+The default evaluator blocks these drafts from formal evaluation. Results and
+the non-template coverage probe are under experiments/results/direction_prototype_v0_1/.
+
 The prototype returns more than a final answer. For each matched cardiology
 topic, it prints:
 

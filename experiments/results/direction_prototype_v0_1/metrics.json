@@ -1,0 +1,254 @@
+{
+  "evaluation_status": "draft_synthetic_template_pilot",
+  "formal_eligible_reference_count": 0,
+  "llm_baseline": "not_run_no_configured_model",
+  "conditions": {
+    "provided_structures": {
+      "development": {
+        "n": 6,
+        "positives": 2,
+        "negatives": 4,
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "tn_binary": 4,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "localization": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      },
+      "test": {
+        "n": 24,
+        "positives": 8,
+        "negatives": 16,
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "tn_binary": 16,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "localization": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      },
+      "all": {
+        "n": 30,
+        "positives": 10,
+        "negatives": 20,
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "tn_binary": 20,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "localization": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      }
+    },
+    "automatic_rule_text": {
+      "development": {
+        "n": 6,
+        "positives": 2,
+        "negatives": 4,
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "tn_binary": 4,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "localization": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      },
+      "test": {
+        "n": 24,
+        "positives": 8,
+        "negatives": 16,
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "tn_binary": 16,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "localization": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      },
+      "all": {
+        "n": 30,
+        "positives": 10,
+        "negatives": 20,
+        "tp": 10,
+        "fp": 0,
+        "fn": 0,
+        "tn_binary": 20,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "localization": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "precision_denominator_zero": false
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      }
+    },
+    "bag_of_states_baseline": {
+      "development": {
+        "n": 6,
+        "positives": 2,
+        "negatives": 4,
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "tn_binary": 4,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "precision_denominator_zero": true
+        },
+        "localization": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "precision_denominator_zero": true
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      },
+      "test": {
+        "n": 24,
+        "positives": 8,
+        "negatives": 16,
+        "tp": 0,
+        "fp": 0,
+        "fn": 8,
+        "tn_binary": 16,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "precision_denominator_zero": true
+        },
+        "localization": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "precision_denominator_zero": true
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      },
+      "all": {
+        "n": 30,
+        "positives": 10,
+        "negatives": 20,
+        "tp": 0,
+        "fp": 0,
+        "fn": 10,
+        "tn_binary": 20,
+        "unresolved": 0,
+        "negative_unresolved": 0,
+        "coverage": 1.0,
+        "false_positive_rate": 0.0,
+        "detection": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "precision_denominator_zero": true
+        },
+        "localization": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "precision_denominator_zero": true
+        },
+        "note": "Unresolved positive -> FN. Binary TN includes negative abstentions; these are not confirmed-consistent answers."
+      }
+    }
+  },
+  "source_language_challenge": {
+    "n": 10,
+    "explicit_transition_extractions": 0,
+    "extraction_coverage": 0.0,
+    "direction_metrics": null,
+    "note": "Source-language snippets lack adjudicated complete tuple labels; coverage only. This is not an independently annotated benchmark."
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "date": "2026-11-09",
+  "timezone": "Asia/Tokyo",
+  "base_commit": "71611178ba8d04fe9e2e04f38c8ea0b46ea39ba8",
+  "python_version_tested": "3.12",
+  "required_test_command": "python3 -m pytest -q",
+  "local_test_dependency_path": "pytest installed outside repository",
+  "tests_passed": 309,
+  "subtests_passed": 2,
+  "test_duration_seconds": 1.66,
+  "dataset_integrity": "PASS",
+  "git_diff_check": "PASS",
+  "formal_gate": "tested: default evaluator rejects non-adjudicated references",
+  "clinical_validation": false,
+  "llm_experiment_run": false
+}

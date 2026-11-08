@@ -1,0 +1,10 @@
+﻿condition,split,n,tp,fp,fn,tn_binary,unresolved,coverage,precision,recall,f1,localization_f1
+provided_structures,development,6,2,0,0,4,0,1.0,1.0,1.0,1.0,1.0
+provided_structures,test,24,8,0,0,16,0,1.0,1.0,1.0,1.0,1.0
+provided_structures,all,30,10,0,0,20,0,1.0,1.0,1.0,1.0,1.0
+automatic_rule_text,development,6,2,0,0,4,0,1.0,1.0,1.0,1.0,1.0
+automatic_rule_text,test,24,8,0,0,16,0,1.0,1.0,1.0,1.0,1.0
+automatic_rule_text,all,30,10,0,0,20,0,1.0,1.0,1.0,1.0,1.0
+bag_of_states_baseline,development,6,0,0,2,4,0,1.0,0.0,0.0,0.0,0.0
+bag_of_states_baseline,test,24,0,0,8,16,0,1.0,0.0,0.0,0.0,0.0
+bag_of_states_baseline,all,30,0,0,10,20,0,1.0,0.0,0.0,0.0,0.0

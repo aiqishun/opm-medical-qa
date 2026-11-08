@@ -1,0 +1,22 @@
+{
+  "snapshot_kind": "technical_prototype_only",
+  "snapshot_version": "0.1",
+  "date": "2026-11-09",
+  "base_repository_commit": "71611178ba8d04fe9e2e04f38c8ea0b46ea39ba8",
+  "formal_reference_freeze": false,
+  "human_approved_count": 0,
+  "split_unit": "mechanism_group",
+  "development_cases": 2,
+  "test_cases": 8,
+  "hashes": {
+    "candidates.public.jsonl": "0dc420531fe580a2e6c3d03d2bbd30a1361600ef54bdbf4c50d39841c35193f6",
+    "field_evidence.csv": "af9a096789e8fd426d0ccec45547c22dd3ae2754f0f6257b802089547b25a14b",
+    "inventory.json": "b84357b4391865f8feea6682069bd1b64780f6eaa4648a71074db98f8a6d7d8f",
+    "labels.private.jsonl": "7de8de222926729d58b9b2145cd645695d734d6b335a3cb0138e31131aaee47c",
+    "references.json": "1199641d39cf6574d4e568678fc96405be771d1849379f0477695fbffa4f93a9",
+    "source_language_challenge.jsonl": "6f88a748a909f02f248107467f057236e177d91d50833b97220c1ae316dc5938",
+    "sources.json": "1e741cb09dd730235181d34d57c8da9c378c072897bca89f22375179cd9f5137",
+    "structures.private.jsonl": "3b10e247bbcf6f17a22ca505f89ee8abe6abd4de6459e331eacc27b90ffb7f9a",
+    "vocabulary.json": "6b8db948ce9c4ecf5a1e494236d11bedf5aaba27576e77e8dfbe17eca3ab16ce"
+  }
+}

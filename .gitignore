@@ -25,6 +25,9 @@ dist/
 # Research outputs
 experiments/results/*
 !experiments/results/.gitkeep
+# This directory contains only the checked-in synthetic direction-audit pilot.
+!experiments/results/direction_prototype_v0_1/
+!experiments/results/direction_prototype_v0_1/**
 experiments/manual_eval/*
 !experiments/manual_eval/.gitkeep
 outputs/graphs/*

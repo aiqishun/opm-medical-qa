@@ -1,0 +1,10 @@
+{
+  "date": "2026-11-09",
+  "case_count": 10,
+  "source_count": 10,
+  "field_checks": 50,
+  "human_approved": 0,
+  "candidate_count": 30,
+  "mechanism_group_count": 6,
+  "evidence_problems": "Pending interpretation/human review is not a measured contradiction rate"
+}
