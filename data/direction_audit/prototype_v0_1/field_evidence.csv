@@ -1,0 +1,51 @@
+﻿case_id,transition_id,field,value,source_id,evidence_locator,section,support_label,mapping_note,assistant_checked_on,human_reviewer,human_review_date,human_decision
+cardio_001,T1,object,Coronary Artery,SRC_01,E1,Procedures — percutaneous coronary intervention,解释映射,选择 narrowed 分支；open 仅指开放，不表示完全正常，也不声称永久不再狭窄。,2026-11-09,,,pending
+cardio_001,T1,process,Coronary Angioplasty,SRC_01,E1,Procedures — percutaneous coronary intervention,解释映射,选择 narrowed 分支；open 仅指开放，不表示完全正常，也不声称永久不再狭窄。,2026-11-09,,,pending
+cardio_001,T1,from_state,narrowed,SRC_01,E1,Procedures — percutaneous coronary intervention,明确支持,选择 narrowed 分支；open 仅指开放，不表示完全正常，也不声称永久不再狭窄。,2026-11-09,,,pending
+cardio_001,T1,to_state,open,SRC_01,E1,Procedures — percutaneous coronary intervention,明确支持,选择 narrowed 分支；open 仅指开放，不表示完全正常，也不声称永久不再狭窄。,2026-11-09,,,pending
+cardio_001,T1,state_owner,Coronary Artery,SRC_01,E1,Procedures — percutaneous coronary intervention,解释映射,选择 narrowed 分支；open 仅指开放，不表示完全正常，也不声称永久不再狭窄。,2026-11-09,,,pending
+cardio_002,T1,object,Heart Rate,SRC_02,E1,Traditional transvenous pacemakers — electrodes,解释映射,正常心率是该段给出的目标反应；本案例不包含设备失效或未响应分支。,2026-11-09,,,pending
+cardio_002,T1,process,Cardiac Pacing,SRC_02,E1,Traditional transvenous pacemakers — electrodes,解释映射,正常心率是该段给出的目标反应；本案例不包含设备失效或未响应分支。,2026-11-09,,,pending
+cardio_002,T1,from_state,slower than normal,SRC_02,E1,Traditional transvenous pacemakers — electrodes,明确支持,正常心率是该段给出的目标反应；本案例不包含设备失效或未响应分支。,2026-11-09,,,pending
+cardio_002,T1,to_state,normal,SRC_02,E1,Traditional transvenous pacemakers — electrodes,明确支持,正常心率是该段给出的目标反应；本案例不包含设备失效或未响应分支。,2026-11-09,,,pending
+cardio_002,T1,state_owner,Heart Rate,SRC_02,E1,Traditional transvenous pacemakers — electrodes,解释映射,正常心率是该段给出的目标反应；本案例不包含设备失效或未响应分支。,2026-11-09,,,pending
+cardio_003,T1,object,Heart Rhythm,SRC_03,E1,Cardioversion — introductory paragraph; electrical cardioversion,解释映射,选择 irregular 而不是 too fast 分支；选择电复律而不是药物复律；不保证每次成功。,2026-11-09,,,pending
+cardio_003,T1,process,Electrical Cardioversion,SRC_03,E1,Cardioversion — introductory paragraph; electrical cardioversion,解释映射,选择 irregular 而不是 too fast 分支；选择电复律而不是药物复律；不保证每次成功。,2026-11-09,,,pending
+cardio_003,T1,from_state,irregular,SRC_03,E1,Cardioversion — introductory paragraph; electrical cardioversion,明确支持,选择 irregular 而不是 too fast 分支；选择电复律而不是药物复律；不保证每次成功。,2026-11-09,,,pending
+cardio_003,T1,to_state,regular,SRC_03,E1,Cardioversion — introductory paragraph; electrical cardioversion,明确支持,选择 irregular 而不是 too fast 分支；选择电复律而不是药物复律；不保证每次成功。,2026-11-09,,,pending
+cardio_003,T1,state_owner,Heart Rhythm,SRC_03,E1,Cardioversion — introductory paragraph; electrical cardioversion,解释映射,选择 irregular 而不是 too fast 分支；选择电复律而不是药物复律；不保证每次成功。,2026-11-09,,,pending
+cardio_004,T1,object,Aortic Valve Opening,SRC_04,E1 + E2,Aortic valve stenosis in children — How can the aortic valve be treated?,解释映射,摘录由两处短片段组成，需分别定位；wider 是相对增宽，不是完全正常。,2026-11-09,,,pending
+cardio_004,T1,process,Balloon Valvuloplasty,SRC_04,E1 + E2,Aortic valve stenosis in children — How can the aortic valve be treated?,解释映射,摘录由两处短片段组成，需分别定位；wider 是相对增宽，不是完全正常。,2026-11-09,,,pending
+cardio_004,T1,from_state,narrowed,SRC_04,E1 + E2,Aortic valve stenosis in children — How can the aortic valve be treated?,明确支持,摘录由两处短片段组成，需分别定位；wider 是相对增宽，不是完全正常。,2026-11-09,,,pending
+cardio_004,T1,to_state,wider,SRC_04,E1 + E2,Aortic valve stenosis in children — How can the aortic valve be treated?,明确支持,摘录由两处短片段组成，需分别定位；wider 是相对增宽，不是完全正常。,2026-11-09,,,pending
+cardio_004,T1,state_owner,Aortic Valve Opening,SRC_04,E1 + E2,Aortic valve stenosis in children — How can the aortic valve be treated?,解释映射,摘录由两处短片段组成，需分别定位；wider 是相对增宽，不是完全正常。,2026-11-09,,,pending
+cardio_005,T1,object,Body Fluid Volume,SRC_05,E1,Medicines — Left-sided heart failure — medicines removing extra sodium and fluid,解释映射,volume 是对体液量的建模；excessive 对应 extra；reduced 表示量减少，不承诺正常。,2026-11-09,,,pending
+cardio_005,T1,process,Diuretic Treatment,SRC_05,E1,Medicines — Left-sided heart failure — medicines removing extra sodium and fluid,解释映射,volume 是对体液量的建模；excessive 对应 extra；reduced 表示量减少，不承诺正常。,2026-11-09,,,pending
+cardio_005,T1,from_state,excessive,SRC_05,E1,Medicines — Left-sided heart failure — medicines removing extra sodium and fluid,解释映射,volume 是对体液量的建模；excessive 对应 extra；reduced 表示量减少，不承诺正常。,2026-11-09,,,pending
+cardio_005,T1,to_state,reduced,SRC_05,E1,Medicines — Left-sided heart failure — medicines removing extra sodium and fluid,解释映射,volume 是对体液量的建模；excessive 对应 extra；reduced 表示量减少，不承诺正常。,2026-11-09,,,pending
+cardio_005,T1,state_owner,Body Fluid Volume,SRC_05,E1,Medicines — Left-sided heart failure — medicines removing extra sodium and fluid,解释映射,volume 是对体液量的建模；excessive 对应 extra；reduced 表示量减少，不承诺正常。,2026-11-09,,,pending
+cardio_006,T1,object,Blood Pressure,SRC_06,E1 + E2,Medicines — introductory paragraph,解释映射,初始 high 依据该节适用人群与前一句；lower 是相对降低，不等于正常血压。,2026-11-09,,,pending
+cardio_006,T1,process,Antihypertensive Treatment,SRC_06,E1 + E2,Medicines — introductory paragraph,解释映射,初始 high 依据该节适用人群与前一句；lower 是相对降低，不等于正常血压。,2026-11-09,,,pending
+cardio_006,T1,from_state,high,SRC_06,E1 + E2,Medicines — introductory paragraph,明确支持,初始 high 依据该节适用人群与前一句；lower 是相对降低，不等于正常血压。,2026-11-09,,,pending
+cardio_006,T1,to_state,lower,SRC_06,E1 + E2,Medicines — introductory paragraph,明确支持,初始 high 依据该节适用人群与前一句；lower 是相对降低，不等于正常血压。,2026-11-09,,,pending
+cardio_006,T1,state_owner,Blood Pressure,SRC_06,E1 + E2,Medicines — introductory paragraph,解释映射,初始 high 依据该节适用人群与前一句；lower 是相对降低，不等于正常血压。,2026-11-09,,,pending
+cardio_007,T1,object,Left Ventricular Wall Motion,SRC_07,E1 + E2,Treatment — Devices for heart failure — Cardiac resynchronisation therapy,解释映射,两个短片段分别来自相邻两句；synchronized 是同一时间收缩的解释映射。,2026-11-09,,,pending
+cardio_007,T1,process,Cardiac Resynchronisation Therapy,SRC_07,E1 + E2,Treatment — Devices for heart failure — Cardiac resynchronisation therapy,解释映射,两个短片段分别来自相邻两句；synchronized 是同一时间收缩的解释映射。,2026-11-09,,,pending
+cardio_007,T1,from_state,out of sync,SRC_07,E1 + E2,Treatment — Devices for heart failure — Cardiac resynchronisation therapy,明确支持,两个短片段分别来自相邻两句；synchronized 是同一时间收缩的解释映射。,2026-11-09,,,pending
+cardio_007,T1,to_state,synchronized,SRC_07,E1 + E2,Treatment — Devices for heart failure — Cardiac resynchronisation therapy,明确支持,两个短片段分别来自相邻两句；synchronized 是同一时间收缩的解释映射。,2026-11-09,,,pending
+cardio_007,T1,state_owner,Left Ventricular Wall Motion,SRC_07,E1 + E2,Treatment — Devices for heart failure — Cardiac resynchronisation therapy,解释映射,两个短片段分别来自相邻两句；synchronized 是同一时间收缩的解释映射。,2026-11-09,,,pending
+cardio_008,T1,object,Pericardial Fluid Amount,SRC_08,E1 + E2 + E3,Definition; How the Test is Performed; Why the Test is Performed,解释映射,起始 accumulated 需结合 Why/Abnormal Results；体液量降低由排液解释映射，不能写成无积液。,2026-11-09,,,pending
+cardio_008,T1,process,Pericardiocentesis,SRC_08,E1 + E2 + E3,Definition; How the Test is Performed; Why the Test is Performed,解释映射,起始 accumulated 需结合 Why/Abnormal Results；体液量降低由排液解释映射，不能写成无积液。,2026-11-09,,,pending
+cardio_008,T1,from_state,accumulated,SRC_08,E1 + E2 + E3,Definition; How the Test is Performed; Why the Test is Performed,解释映射,起始 accumulated 需结合 Why/Abnormal Results；体液量降低由排液解释映射，不能写成无积液。,2026-11-09,,,pending
+cardio_008,T1,to_state,reduced,SRC_08,E1 + E2 + E3,Definition; How the Test is Performed; Why the Test is Performed,解释映射,起始 accumulated 需结合 Why/Abnormal Results；体液量降低由排液解释映射，不能写成无积液。,2026-11-09,,,pending
+cardio_008,T1,state_owner,Pericardial Fluid Amount,SRC_08,E1 + E2 + E3,Definition; How the Test is Performed; Why the Test is Performed,解释映射,起始 accumulated 需结合 Why/Abnormal Results；体液量降低由排液解释映射，不能写成无积液。,2026-11-09,,,pending
+cardio_009,T1,object,Chest Pain Status,SRC_09,E1,Stable angina,解释映射,只适用于该段稳定型心绞痛，保留 usually；不外推至不稳定型心绞痛或所有胸痛。,2026-11-09,,,pending
+cardio_009,T1,process,Resting,SRC_09,E1,Stable angina,解释映射,只适用于该段稳定型心绞痛，保留 usually；不外推至不稳定型心绞痛或所有胸痛。,2026-11-09,,,pending
+cardio_009,T1,from_state,present,SRC_09,E1,Stable angina,明确支持,只适用于该段稳定型心绞痛，保留 usually；不外推至不稳定型心绞痛或所有胸痛。,2026-11-09,,,pending
+cardio_009,T1,to_state,relieved,SRC_09,E1,Stable angina,明确支持,只适用于该段稳定型心绞痛，保留 usually；不外推至不稳定型心绞痛或所有胸痛。,2026-11-09,,,pending
+cardio_009,T1,state_owner,Chest Pain Status,SRC_09,E1,Stable angina,解释映射,只适用于该段稳定型心绞痛，保留 usually；不外推至不稳定型心绞痛或所有胸痛。,2026-11-09,,,pending
+cardio_010,T1,object,Blood,SRC_10,E1 + E2 + E3,Adding oxygen to blood,解释映射,起始 oxygen poor 来自同段前句；通常生理情境，不声称在肺功能异常时仍然成立。,2026-11-09,,,pending
+cardio_010,T1,process,Pulmonary Oxygenation,SRC_10,E1 + E2 + E3,Adding oxygen to blood,解释映射,起始 oxygen poor 来自同段前句；通常生理情境，不声称在肺功能异常时仍然成立。,2026-11-09,,,pending
+cardio_010,T1,from_state,oxygen poor,SRC_10,E1 + E2 + E3,Adding oxygen to blood,明确支持,起始 oxygen poor 来自同段前句；通常生理情境，不声称在肺功能异常时仍然成立。,2026-11-09,,,pending
+cardio_010,T1,to_state,oxygen rich,SRC_10,E1 + E2 + E3,Adding oxygen to blood,明确支持,起始 oxygen poor 来自同段前句；通常生理情境，不声称在肺功能异常时仍然成立。,2026-11-09,,,pending
+cardio_010,T1,state_owner,Blood,SRC_10,E1 + E2 + E3,Adding oxygen to blood,解释映射,起始 oxygen poor 来自同段前句；通常生理情境，不声称在肺功能异常时仍然成立。,2026-11-09,,,pending

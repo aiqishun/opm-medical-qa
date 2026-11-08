@@ -1,0 +1,108 @@
+{
+  "objects": {
+    "coronary artery": [
+      "coronary vessel"
+    ],
+    "heart rate": [
+      "cardiac rate"
+    ],
+    "heart rhythm": [
+      "cardiac rhythm"
+    ],
+    "aortic valve opening": [
+      "aortic orifice"
+    ],
+    "body fluid volume": [
+      "body fluid amount"
+    ],
+    "blood pressure": [
+      "arterial pressure"
+    ],
+    "left ventricular wall motion": [
+      "left ventricular wall contraction"
+    ],
+    "pericardial fluid amount": [
+      "pericardial fluid volume"
+    ],
+    "chest pain status": [
+      "anginal pain status"
+    ],
+    "blood": [
+      "circulating blood"
+    ]
+  },
+  "processes": {
+    "coronary angioplasty": [
+      "PCI"
+    ],
+    "cardiac pacing": [
+      "pacemaker stimulation"
+    ],
+    "electrical cardioversion": [
+      "electrical rhythm resetting"
+    ],
+    "balloon valvuloplasty": [
+      "balloon valvotomy"
+    ],
+    "diuretic treatment": [
+      "diuresis treatment"
+    ],
+    "antihypertensive treatment": [
+      "blood pressure lowering therapy"
+    ],
+    "cardiac resynchronisation therapy": [
+      "CRT"
+    ],
+    "pericardiocentesis": [
+      "pericardial drainage"
+    ],
+    "resting": [
+      "taking rest"
+    ],
+    "pulmonary oxygenation": [
+      "oxygen uptake in the lungs"
+    ]
+  },
+  "states": {
+    "coronary artery": {
+      "narrowed": [],
+      "open": []
+    },
+    "heart rate": {
+      "slower than normal": [],
+      "normal": []
+    },
+    "heart rhythm": {
+      "irregular": [],
+      "regular": []
+    },
+    "aortic valve opening": {
+      "narrowed": [],
+      "wider": []
+    },
+    "body fluid volume": {
+      "excessive": [],
+      "reduced": []
+    },
+    "blood pressure": {
+      "high": [],
+      "lower": []
+    },
+    "left ventricular wall motion": {
+      "out of sync": [],
+      "synchronized": []
+    },
+    "pericardial fluid amount": {
+      "accumulated": [],
+      "reduced": []
+    },
+    "chest pain status": {
+      "present": [],
+      "relieved": []
+    },
+    "blood": {
+      "oxygen poor": [],
+      "oxygen rich": []
+    }
+  }
+}

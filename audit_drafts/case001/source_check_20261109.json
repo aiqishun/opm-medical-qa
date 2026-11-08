@@ -1,0 +1,27 @@
+{
+  "case_id": "demo_coronary_001",
+  "checked_on": "2026-11-09",
+  "timezone": "Asia/Tokyo",
+  "check_level": "assistant_source_check_not_human_adjudication",
+  "source_url": "https://www.nhlbi.nih.gov/health/coronary-heart-disease/causes",
+  "source_section": "Plaque buildup",
+  "source_excerpt_id": "SRC01/S1",
+  "excerpt_match": true,
+  "original_model_changed": false,
+  "field_checks": [
+    {"field": "object", "value": "Coronary Blood Flow", "support": "解释映射"},
+    {"field": "process", "value": "Coronary Occluding", "support": "解释待定", "issue": "narrowing_not_automatically_occluding"},
+    {"field": "from_state", "value": "adequate", "support": "未给出", "issue": "unsupported_initial_state"},
+    {"field": "to_state", "value": "reduced", "support": "明确支持可能结果分支"},
+    {"field": "state_owner", "value": "Coronary Blood Flow", "support": "建模映射待审"}
+  ],
+  "issues": [
+    {"type": "unsupported_initial_state", "decision": "Keep null in evidence-faithful representation until supported"},
+    {"type": "process_mapping_mismatch", "decision": "Do not equate narrowing with occluding without an explicit modeling decision"},
+    {"type": "modality_or_context_loss", "decision": "Preserve possible outcome and selected reduced branch"}
+  ],
+  "freeze_decision": "excluded_from_direction_reference_pilot",
+  "approved_for_formal_evaluation": false,
+  "human_review": {"reviewer": null, "date": null, "decision": "pending"},
+  "note": "This is the older OPCloud demonstration. It is distinct from new source-based case cardio_001 (angioplasty)."
+}

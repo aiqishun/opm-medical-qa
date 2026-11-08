@@ -1,0 +1,432 @@
+[
+  {
+    "case_id": "cardio_001",
+    "topic_id": "cardio_001",
+    "topic_zh": "冠脉介入开放狭窄冠状动脉",
+    "mechanism_group": "mechanical_dilation",
+    "split": "development",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Coronary Angioplasty affect Coronary Artery?",
+    "source_ids": [
+      "SRC_01"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "选择 narrowed 分支；open 仅指开放，不表示完全正常，也不声称永久不再狭窄。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Coronary Artery",
+        "process": "Coronary Angioplasty",
+        "from_state": "narrowed",
+        "to_state": "open",
+        "state_owner": "Coronary Artery",
+        "context": "Selected coronary artery with plaque-related narrowing, successful opening branch",
+        "modality": "possible"
+      }
+    ],
+    "opl_draft": "Coronary Angioplasty changes Coronary Artery from narrowed to open.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_002",
+    "topic_id": "cardio_002",
+    "topic_zh": "起搏改善心动过缓",
+    "mechanism_group": "rhythm_control",
+    "split": "test",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Cardiac Pacing affect Heart Rate?",
+    "source_ids": [
+      "SRC_02"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "正常心率是该段给出的目标反应；本案例不包含设备失效或未响应分支。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Heart Rate",
+        "process": "Cardiac Pacing",
+        "from_state": "slower than normal",
+        "to_state": "normal",
+        "state_owner": "Heart Rate",
+        "context": "Slow heartbeat sensed by a traditional pacemaker, intended response branch",
+        "modality": "possible"
+      }
+    ],
+    "opl_draft": "Cardiac Pacing changes Heart Rate from slower than normal to normal.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_003",
+    "topic_id": "cardio_003",
+    "topic_zh": "电复律恢复规则心律",
+    "mechanism_group": "rhythm_control",
+    "split": "test",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Electrical Cardioversion affect Heart Rhythm?",
+    "source_ids": [
+      "SRC_03"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "选择 irregular 而不是 too fast 分支；选择电复律而不是药物复律；不保证每次成功。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Heart Rhythm",
+        "process": "Electrical Cardioversion",
+        "from_state": "irregular",
+        "to_state": "regular",
+        "state_owner": "Heart Rhythm",
+        "context": "Irregular heartbeat, successful electrical cardioversion branch",
+        "modality": "possible"
+      }
+    ],
+    "opl_draft": "Electrical Cardioversion changes Heart Rhythm from irregular to regular.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_004",
+    "topic_id": "cardio_004",
+    "topic_zh": "主动脉瓣球囊扩张",
+    "mechanism_group": "mechanical_dilation",
+    "split": "development",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Balloon Valvuloplasty affect Aortic Valve Opening?",
+    "source_ids": [
+      "SRC_04"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "摘录由两处短片段组成，需分别定位；wider 是相对增宽，不是完全正常。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Aortic Valve Opening",
+        "process": "Balloon Valvuloplasty",
+        "from_state": "narrowed",
+        "to_state": "wider",
+        "state_owner": "Aortic Valve Opening",
+        "context": "Childhood aortic stenosis, balloon widens the opening without implying a fully normal valve",
+        "modality": "possible"
+      }
+    ],
+    "opl_draft": "Balloon Valvuloplasty changes Aortic Valve Opening from narrowed to wider.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_005",
+    "topic_id": "cardio_005",
+    "topic_zh": "心衰利尿减少多余体液",
+    "mechanism_group": "volume_management",
+    "split": "test",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Diuretic Treatment affect Body Fluid Volume?",
+    "source_ids": [
+      "SRC_05"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "volume 是对体液量的建模；excessive 对应 extra；reduced 表示量减少，不承诺正常。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Body Fluid Volume",
+        "process": "Diuretic Treatment",
+        "from_state": "excessive",
+        "to_state": "reduced",
+        "state_owner": "Body Fluid Volume",
+        "context": "Heart failure with extra fluid, intended diuretic response without asserting normal volume",
+        "modality": "possible"
+      }
+    ],
+    "opl_draft": "Diuretic Treatment changes Body Fluid Volume from excessive to reduced.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_006",
+    "topic_id": "cardio_006",
+    "topic_zh": "降压治疗降低高血压",
+    "mechanism_group": "pressure_control",
+    "split": "test",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Antihypertensive Treatment affect Blood Pressure?",
+    "source_ids": [
+      "SRC_06"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "初始 high 依据该节适用人群与前一句；lower 是相对降低，不等于正常血压。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Blood Pressure",
+        "process": "Antihypertensive Treatment",
+        "from_state": "high",
+        "to_state": "lower",
+        "state_owner": "Blood Pressure",
+        "context": "High blood pressure treated with medicines, lowering response without a guaranteed normal target",
+        "modality": "possible"
+      }
+    ],
+    "opl_draft": "Antihypertensive Treatment changes Blood Pressure from high to lower.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_007",
+    "topic_id": "cardio_007",
+    "topic_zh": "CRT 改善左室壁收缩不同步",
+    "mechanism_group": "rhythm_control",
+    "split": "test",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Cardiac Resynchronisation Therapy affect Left Ventricular Wall Motion?",
+    "source_ids": [
+      "SRC_07"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "两个短片段分别来自相邻两句；synchronized 是同一时间收缩的解释映射。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Left Ventricular Wall Motion",
+        "process": "Cardiac Resynchronisation Therapy",
+        "from_state": "out of sync",
+        "to_state": "synchronized",
+        "state_owner": "Left Ventricular Wall Motion",
+        "context": "Heart failure with left ventricular wall dyssynchrony, CRT response branch",
+        "modality": "possible"
+      }
+    ],
+    "opl_draft": "Cardiac Resynchronisation Therapy changes Left Ventricular Wall Motion from out of sync to synchronized.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_008",
+    "topic_id": "cardio_008",
+    "topic_zh": "心包穿刺减少积液量",
+    "mechanism_group": "volume_management",
+    "split": "test",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Pericardiocentesis affect Pericardial Fluid Amount?",
+    "source_ids": [
+      "SRC_08"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "起始 accumulated 需结合 Why/Abnormal Results；体液量降低由排液解释映射，不能写成无积液。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Pericardial Fluid Amount",
+        "process": "Pericardiocentesis",
+        "from_state": "accumulated",
+        "to_state": "reduced",
+        "state_owner": "Pericardial Fluid Amount",
+        "context": "Pericardial fluid accumulation being drained, not a guarantee of zero fluid or no recurrence",
+        "modality": "possible"
+      }
+    ],
+    "opl_draft": "Pericardiocentesis changes Pericardial Fluid Amount from accumulated to reduced.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_009",
+    "topic_id": "cardio_009",
+    "topic_zh": "稳定型心绞痛休息后缓解",
+    "mechanism_group": "ischemic_symptom_response",
+    "split": "test",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Resting affect Chest Pain Status?",
+    "source_ids": [
+      "SRC_09"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "只适用于该段稳定型心绞痛，保留 usually；不外推至不稳定型心绞痛或所有胸痛。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Chest Pain Status",
+        "process": "Resting",
+        "from_state": "present",
+        "to_state": "relieved",
+        "state_owner": "Chest Pain Status",
+        "context": "Known stable angina episode, usual response to a few minutes of rest",
+        "modality": "usually"
+      }
+    ],
+    "opl_draft": "Resting changes Chest Pain Status from present to relieved.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  },
+  {
+    "case_id": "cardio_010",
+    "topic_id": "cardio_010",
+    "topic_zh": "肺循环血液氧合",
+    "mechanism_group": "cardiopulmonary_oxygenation",
+    "split": "test",
+    "question_origin": "source_based_synthetic_not_medqa",
+    "medqa_question_id": null,
+    "question": "How can Pulmonary Oxygenation affect Blood?",
+    "source_ids": [
+      "SRC_10"
+    ],
+    "reference_status": "assistant_checked_pending_human",
+    "approved_for_formal_evaluation": false,
+    "human_review": {
+      "reviewer": null,
+      "date": null,
+      "decision": "pending"
+    },
+    "assistant_check": {
+      "date": "2026-11-09",
+      "level": "source_traceability_and_model_mapping",
+      "unresolved_items": [
+        "Human medical/OPM adjudication required",
+        "Validate OPL wording in OPCloud"
+      ]
+    },
+    "scope_note": "起始 oxygen poor 来自同段前句；通常生理情境，不声称在肺功能异常时仍然成立。",
+    "transitions": [
+      {
+        "id": "T1",
+        "object": "Blood",
+        "process": "Pulmonary Oxygenation",
+        "from_state": "oxygen poor",
+        "to_state": "oxygen rich",
+        "state_owner": "Blood",
+        "context": "Typical pulmonary circulation through functioning lungs",
+        "modality": "usually"
+      }
+    ],
+    "opl_draft": "Pulmonary Oxygenation changes Blood from oxygen poor to oxygen rich.",
+    "opl_caveat": "Draft OPL skeleton only; context and modality remain in JSON. Not OPCloud-validated."
+  }
+]
